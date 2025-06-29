@@ -11,3 +11,17 @@ alwaysApply: false
 - You should use Next.js as it works best with Vercel. 
 - This frontend will ultimately be deployed on Vercel, but it should be possible to test locally. 
 - Always provide users with a way to run the created UI once you have created it.
+
+---
+### Vibe and Theme Customizations
+
+- Primary color theme: **#006BB6** (soft blue) with **silver** accents.
+- Chatbot message boxes should use **#F58426** (orange) with **#1E1E1E** (dark gray) text for clarity.
+- Text on blue backgrounds (`#006BB6`) should be **#FFFFFF** (white) or **#F0F0F0** (soft white) for contrast.
+- Use the **Sono** font for inputs and chatbot messages.
+- Buttons must have soft shadows and slightly rounded corners (8px radius).
+- Use smooth **fade-in animations** when components load.
+- Input boxes should **auto-resize vertically** as the user types.
+- All error messages must be **kind and a little funny** – no harsh red text.
+- The first chatbot message should greet the user with a casual:  
+  > `"Hey, what’s up?"`

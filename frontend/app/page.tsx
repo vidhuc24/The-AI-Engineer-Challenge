@@ -160,7 +160,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [model, setModel] = useState("gpt-4.1-mini");
-  const [showTimestamps, setShowTimestamps] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [theme, setTheme] = useState<Theme>('dark-ice');
@@ -387,19 +386,6 @@ export default function Home() {
               <option value="gpt-4.1-nano">gpt-4.1-nano</option>
             </select>
           </label>
-          
-          <div className={styles.toggleContainer}>
-            <label className={styles.toggleLabel}>
-              <input
-                type="checkbox"
-                checked={showTimestamps}
-                onChange={(e) => setShowTimestamps(e.target.checked)}
-                className={styles.toggleInput}
-              />
-              <span className={styles.toggleSlider}></span>
-              ⏰ Show Timestamps
-            </label>
-          </div>
         </form>
         
         <div className={styles.logoContainer}>
@@ -436,11 +422,9 @@ export default function Home() {
                   >
                     <MessageContent content={msg.content} isBot={msg.role === "bot"} theme={theme} />
                   </div>
-                  {showTimestamps && (
-                    <div className={styles.timestamp}>
-                      {formatRelativeTime(msg.timestamp)}
-                    </div>
-                  )}
+                  <div className={styles.timestamp}>
+                    {formatRelativeTime(msg.timestamp)}
+                  </div>
                 </div>
               ))}
               {loading && (
@@ -448,11 +432,9 @@ export default function Home() {
                   <div className={styles.botMessage} style={{ opacity: 0.7 }}>
                     <span className={styles.typing}>AI is typing…</span>
                   </div>
-                  {showTimestamps && (
-                    <div className={styles.timestamp}>
-                      now
-                    </div>
-                  )}
+                  <div className={styles.timestamp}>
+                    now
+                  </div>
                 </div>
               )}
               <div ref={chatEndRef} />

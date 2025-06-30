@@ -125,6 +125,38 @@ While it is a bit counter-intuitive to set things up before jumping into vibe-co
 
 </details>
 
+## 🎨 Recent UI/UX Enhancements
+
+The ChillGPT interface has been significantly improved with the following enhancements:
+
+### Theme & Visual Improvements
+- **Light Snow Theme**: Updated background from bright white gradients to softer #F9F6EE for better readability
+- **Neon Ice Theme**: Changed accent color from cyan (#00FFFF) to preferred #1685f8 blue throughout
+- **Logo Spacing**: Reduced gap between logo and ChillGPT title from 8px to 4px for tighter visual grouping
+
+### Chat Interface Simplification
+- **Clean Bubbles**: Removed all complex layered backgrounds, borders, shadows, and visual effects from chat messages
+- **Pure Text Focus**: Eliminated translucent backgrounds that created visual "wrapping" effects
+- **Simplified Containers**: Removed backgrounds from chatContainer, inputForm, and userInputArea for cleaner appearance
+- **Typography-Only Formatting**: Maintained bold, italic, and font size features while removing visual clutter
+
+### Functionality Improvements
+- **Always-Visible Timestamps**: Removed timestamp toggle button and set timestamps to display by default
+- **Better Text Visibility**: Fixed invisible text issues for titles and labels across all themes
+- **Theme-Specific Colors**: Added proper color overrides for optimal visibility in each theme
+
+### Input Controls Enhancement
+- **Subtle Container**: Added rounded container around input controls with theme-specific styling
+- **Counter Alignment**: Fine-tuned character/token counter positioning to align with label baseline
+- **Improved Readability**: Made counter text bold and removed problematic background highlighting
+
+### Technical Details
+- **Container Styling**: 16px border-radius with very subtle backgrounds and soft borders
+- **Theme-Specific Containers**: 
+  - Dark Ice: rgba(255,255,255,0.03) background, rgba(255,255,255,0.1) border
+  - Light Snow: rgba(0,0,0,0.02) background, rgba(0,0,0,0.08) border
+  - Neon Ice: rgba(22,133,248,0.02) background, rgba(22,133,248,0.2) border
+
 <details>
   <summary>🚀 Deploying Your First LLM-powered Application with Vercel</summary>
 

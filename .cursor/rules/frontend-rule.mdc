@@ -13,15 +13,42 @@ alwaysApply: false
 - Always provide users with a way to run the created UI once you have created it.
 
 ---
-### Vibe and Theme Customizations
+### ChillGPT Theme System
 
-- Primary color theme: **#006BB6** (soft blue) with **silver** accents.
-- Chatbot message boxes should use **#F58426** (orange) with **#1E1E1E** (dark gray) text for clarity.
-- Text on blue backgrounds (`#006BB6`) should be **#FFFFFF** (white) or **#F0F0F0** (soft white) for contrast.
-- Use the **Sono** font for inputs and chatbot messages.
-- Buttons must have soft shadows and slightly rounded corners (8px radius).
-- Use smooth **fade-in animations** when components load.
-- Input boxes should **auto-resize vertically** as the user types.
-- All error messages must be **kind and a little funny** – no harsh red text.
-- The first chatbot message should greet the user with a casual:  
-  > `"Hey, what’s up?"`
+**Current Implementation: Three Distinct Themes**
+
+#### Dark Ice Theme (Default)
+- Background: `linear-gradient(135deg, #2C3136 0%, #3A3F44 50%, #2C3136 100%)`
+- Text: `#FFFFFF` and `#E8E8E8` for primary text
+- Accent: Light colors with subtle shadows
+
+#### Light Snow Theme
+- Background: `#F9F6EE` (soft cream, not bright white)
+- Text: `#2C3136` and `#374151` for primary text
+- Designed for comfortable reading without harsh contrast
+
+#### Neon Ice Theme
+- Background: `linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%)`
+- Accent Color: `#1685f8` (preferred blue) with glow effects
+- Text: `#E8F4FD` and `#FEF3E2` for messages
+
+---
+### Design Philosophy: Clean & Minimal
+
+- **No Background Bubbles**: Chat messages use pure text with no backgrounds, borders, or shadows
+- **Typography Focus**: Rely on bold, italic, and font sizes for emphasis rather than visual containers
+- **Subtle Containers**: Only input controls have very subtle rounded containers (16px radius)
+- **Theme-Specific Containers**:
+  - Dark Ice: `rgba(255,255,255,0.03)` background, `rgba(255,255,255,0.1)` border
+  - Light Snow: `rgba(0,0,0,0.02)` background, `rgba(0,0,0,0.08)` border  
+  - Neon Ice: `rgba(22,133,248,0.02)` background, `rgba(22,133,248,0.2)` border
+
+---
+### UI Components Guidelines
+
+- **Font**: 'Montserrat' for all interface elements
+- **Timestamps**: Always visible, italic, positioned relative to message alignment
+- **Counter**: Character/token counter positioned at top-right of textarea, bold weight
+- **Logo**: Ice cube robot with 4px gap to "ChillGPT" title
+- **Animations**: Smooth fade-in (0.5s) for messages, subtle hover effects
+- **Error Messages**: Kind and helpful, no harsh styling

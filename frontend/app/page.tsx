@@ -60,13 +60,16 @@ function MessageContent({ content, isBot, theme }: { content: string; isBot: boo
   };
 
   // Extract code content more reliably
-  const extractCodeContent = (element: any): string => {
+  const extractCodeContent = (element: React.ReactNode): string => {
     if (typeof element === 'string') return element;
-    if (element?.props?.children) {
-      if (Array.isArray(element.props.children)) {
-        return element.props.children.map((child: any) => extractCodeContent(child)).join('');
+    if (element && typeof element === 'object' && 'props' in element) {
+      const elementWithProps = element as { props?: { children?: React.ReactNode } };
+      if (elementWithProps.props?.children) {
+        if (Array.isArray(elementWithProps.props.children)) {
+          return elementWithProps.props.children.map((child: React.ReactNode) => extractCodeContent(child)).join('');
+        }
+        return extractCodeContent(elementWithProps.props.children);
       }
-      return extractCodeContent(element.props.children);
     }
     return '';
   };
@@ -207,7 +210,7 @@ export default function Home() {
     } else {
       setUnreadCount(prev => prev + 1);
     }
-  }, [messages, loading]);
+  }, [messages, loading, isAtBottom]);
 
   // Auto-resize textarea
   useEffect(() => {

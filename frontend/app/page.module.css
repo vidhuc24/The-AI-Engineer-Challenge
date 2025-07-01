@@ -462,14 +462,14 @@ a.secondary {
 }
 
 .clearButton {
-  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  background: linear-gradient(135deg, #4682B4, #87CEEB);
   color: white;
   font-size: 0.9rem;
   font-weight: 600;
   border: none;
   border-radius: 10px;
   padding: 10px 0;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 4px 15px rgba(70, 130, 180, 0.3);
   cursor: pointer;
   transition: all 0.3s;
   font-family: 'Montserrat', Arial, Helvetica, sans-serif;
@@ -479,8 +479,8 @@ a.secondary {
 
 .clearButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-  background: linear-gradient(135deg, #FF5252, #FF7B7B);
+  box-shadow: 0 6px 20px rgba(70, 130, 180, 0.4);
+  background: linear-gradient(135deg, #1E3A8A, #4682B4);
 }
 
 .clearButton:active {
@@ -809,33 +809,56 @@ a.secondary {
 
 /* Math equation styling */
 .markdownContent .katex {
-  font-size: 1.1em;
+  font-size: 1.2em;
   color: inherit;
+  line-height: 1.5;
 }
 
 .markdownContent .katex-display {
-  margin: 16px 0;
+  margin: 20px 0;
   text-align: center;
+  overflow-x: auto;
 }
 
 .markdownContent .katex-display > .katex {
   display: inline-block;
-  padding: 12px 20px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 1.3em;
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/* Inline math styling */
+.markdownContent .katex-inline {
+  padding: 2px 6px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 1.1em;
 }
 
 /* Theme-specific math styling */
 .theme-light-snow .markdownContent .katex-display > .katex {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #1F2937;
+}
+
+.theme-light-snow .markdownContent .katex-inline {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1F2937;
 }
 
 .theme-neon-ice .markdownContent .katex-display > .katex {
+  background: rgba(22, 133, 248, 0.08);
+  border: 1px solid rgba(22, 133, 248, 0.25);
+  box-shadow: 0 0 15px rgba(22, 133, 248, 0.15);
+}
+
+.theme-neon-ice .markdownContent .katex-inline {
   background: rgba(22, 133, 248, 0.05);
-  border: 1px solid rgba(22, 133, 248, 0.2);
-  box-shadow: 0 0 10px rgba(22, 133, 248, 0.1);
 }
 
 .mdH1 {
@@ -904,6 +927,30 @@ a.secondary {
   overflow: hidden;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Light snow theme code blocks - darker background */
+.theme-light-snow .codeBlockContainer {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.theme-light-snow .codeHeader {
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-light-snow .lineNumbers {
+  background: rgba(0, 0, 0, 0.9);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-light-snow .lineNumber {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.theme-light-snow .codeLanguage {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .codeHeader {

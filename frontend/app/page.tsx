@@ -353,7 +353,7 @@ export default function Home() {
           </label>
           
           <label className={styles.label}>
-            🌈 What's your vibe?
+            ✨ What's your vibe?
             <select
               className={styles.input}
               value={theme}

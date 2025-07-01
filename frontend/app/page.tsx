@@ -2,7 +2,10 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import styles from "./page.module.css";
 
 // Helper function to format relative time
@@ -77,8 +80,8 @@ function MessageContent({ content, isBot, theme }: { content: string; isBot: boo
   return (
     <div className={`${styles.markdownContent} ${styles[`theme-${theme}`]}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeHighlight, rehypeKatex]}
         components={{
           h1: ({ children }) => <h1 className={styles.mdH1}>{children}</h1>,
           h2: ({ children }) => <h2 className={styles.mdH2}>{children}</h2>,
@@ -203,14 +206,18 @@ export default function Home() {
     }
   };
 
-  // Auto-scroll effect for new messages
+  // Auto-scroll effect for new messages - Fix unread count logic
   useEffect(() => {
     if (isAtBottom) {
       scrollToBottom(true);
     } else {
-      setUnreadCount(prev => prev + 1);
+      // Only increment count for actual new bot messages with content
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.role === "bot" && lastMessage.content.trim() && !loading) {
+        setUnreadCount(prev => prev + 1);
+      }
     }
-  }, [messages, loading, isAtBottom]);
+  }, [messages, isAtBottom, loading]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -312,6 +319,16 @@ export default function Home() {
     }
   };
 
+  // Add clear chat function
+  const clearChat = () => {
+    setMessages([
+      { role: "bot", content: "Hey, what's up?", timestamp: Date.now() },
+    ]);
+    setUnreadCount(0);
+    setError("");
+    setUserMessage("");
+  };
+
   return (
     <div className={`${styles.chatPage} ${styles[`theme-${theme}`]}`}>
       <div className={styles.leftPanel}>
@@ -336,7 +353,7 @@ export default function Home() {
           </label>
           
           <label className={styles.label}>
-            🎨 Theme
+            🌈 What's your vibe?
             <select
               className={styles.input}
               value={theme}
@@ -389,6 +406,15 @@ export default function Home() {
               <option value="gpt-4.1-nano">gpt-4.1-nano</option>
             </select>
           </label>
+
+          <button
+            type="button"
+            className={styles.clearButton}
+            onClick={clearChat}
+            title="Clear conversation"
+          >
+            🗑️ Clear Chat
+          </button>
         </form>
         
         <div className={styles.logoContainer}>

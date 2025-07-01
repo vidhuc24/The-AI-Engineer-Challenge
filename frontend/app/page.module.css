@@ -461,6 +461,32 @@ a.secondary {
   transform: none;
 }
 
+.clearButton {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 0;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.clearButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  background: linear-gradient(135deg, #FF5252, #FF7B7B);
+}
+
+.clearButton:active {
+  transform: translateY(0);
+}
+
 .logoContainer {
   display: flex;
   flex-direction: column;
@@ -781,11 +807,46 @@ a.secondary {
   color: inherit;
 }
 
+/* Math equation styling */
+.markdownContent .katex {
+  font-size: 1.1em;
+  color: inherit;
+}
+
+.markdownContent .katex-display {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.markdownContent .katex-display > .katex {
+  display: inline-block;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Theme-specific math styling */
+.theme-light-snow .markdownContent .katex-display > .katex {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-neon-ice .markdownContent .katex-display > .katex {
+  background: rgba(22, 133, 248, 0.05);
+  border: 1px solid rgba(22, 133, 248, 0.2);
+  box-shadow: 0 0 10px rgba(22, 133, 248, 0.1);
+}
+
 .mdH1 {
   font-size: 1.4rem;
   font-weight: 700;
   margin: 16px 0 12px 0;
   color: inherit;
+  background: none;
+  border: none;
+  text-shadow: none;
+  box-shadow: none;
 }
 
 .mdH2 {
@@ -793,6 +854,10 @@ a.secondary {
   font-weight: 600;
   margin: 14px 0 10px 0;
   color: inherit;
+  background: none;
+  border: none;
+  text-shadow: none;
+  box-shadow: none;
 }
 
 .mdH3 {
@@ -800,6 +865,10 @@ a.secondary {
   font-weight: 600;
   margin: 12px 0 8px 0;
   color: inherit;
+  background: none;
+  border: none;
+  text-shadow: none;
+  box-shadow: none;
 }
 
 .mdParagraph {
@@ -976,9 +1045,9 @@ a.secondary {
 }
 
 .theme-dark-ice .userMessage {
-  background: none;
+  background: rgba(255, 255, 255, 0.03);
   color: #FFFFFF;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   box-shadow: none;
 }
@@ -993,9 +1062,9 @@ a.secondary {
 }
 
 .theme-light-snow .userMessage {
-  background: none;
+  background: rgba(0, 0, 0, 0.02);
   color: #2C3136;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   box-shadow: none;
 }
@@ -1010,9 +1079,9 @@ a.secondary {
 }
 
 .theme-neon-ice .userMessage {
-  background: none;
+  background: rgba(22, 133, 248, 0.02);
   color: #FEF3E2;
-  border: none;
+  border: 1px solid rgba(22, 133, 248, 0.15);
   border-radius: 18px;
   box-shadow: none;
 }

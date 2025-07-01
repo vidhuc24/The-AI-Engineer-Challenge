@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Averia+Libre:wght@700&family=Montserrat:wght@400;600&family=Rubik+Puddles&display=swap');
 
+/* KaTeX font fixes */
+.katex {
+  font: normal 1.21em KaTeX_Main, "Times New Roman", serif !important;
+}
+
+.katex * {
+  border-color: currentColor !important;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -148,19 +157,19 @@ select:focus {
 
 /* Light theme specific syntax highlighting */
 .theme-light-snow .hljs {
-  color: #383a42;
+  color: #f8f8f2; /* Light text for dark background */
 }
 
 .theme-light-snow .hljs-comment,
 .theme-light-snow .hljs-quote {
-  color: #a0a1a7;
+  color: #75715e;
   font-style: italic;
 }
 
 .theme-light-snow .hljs-keyword,
 .theme-light-snow .hljs-selector-tag,
 .theme-light-snow .hljs-subst {
-  color: #a626a4;
+  color: #f92672;
   font-weight: bold;
 }
 
@@ -169,18 +178,18 @@ select:focus {
 .theme-light-snow .hljs-variable,
 .theme-light-snow .hljs-template-variable,
 .theme-light-snow .hljs-tag .hljs-attr {
-  color: #986801;
+  color: #ae81ff;
 }
 
 .theme-light-snow .hljs-string,
 .theme-light-snow .hljs-doctag {
-  color: #50a14f;
+  color: #e6db74;
 }
 
 .theme-light-snow .hljs-title,
 .theme-light-snow .hljs-section,
 .theme-light-snow .hljs-selector-id {
-  color: #4078f2;
+  color: #a6e22e;
   font-weight: bold;
 }
 
@@ -189,21 +198,21 @@ select:focus {
 .theme-light-snow .hljs-tag,
 .theme-light-snow .hljs-regexp,
 .theme-light-snow .hljs-link {
-  color: #0184bc;
+  color: #66d9ef;
 }
 
 .theme-light-snow .hljs-symbol,
 .theme-light-snow .hljs-bullet,
 .theme-light-snow .hljs-built_in,
 .theme-light-snow .hljs-builtin-name {
-  color: #c18401;
+  color: #fd971f;
 }
 
 .theme-light-snow .hljs-meta,
 .theme-light-snow .hljs-deletion {
-  color: #e45649;
+  color: #f92672;
 }
 
 .theme-light-snow .hljs-addition {
-  color: #50a14f;
+  color: #a6e22e;
 }

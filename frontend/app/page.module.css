@@ -807,58 +807,76 @@ a.secondary {
   color: inherit;
 }
 
-/* Math equation styling */
+/* Math equation styling - Complete overhaul */
 .markdownContent .katex {
-  font-size: 1.2em;
-  color: inherit;
-  line-height: 1.5;
+  font-size: 1.15em !important;
+  color: inherit !important;
+  line-height: 1.6 !important;
 }
 
 .markdownContent .katex-display {
-  margin: 20px 0;
-  text-align: center;
-  overflow-x: auto;
+  margin: 24px 0 !important;
+  text-align: center !important;
+  overflow-x: auto !important;
+  padding: 0 !important;
 }
 
 .markdownContent .katex-display > .katex {
-  display: inline-block;
-  padding: 16px 24px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 1.3em;
-  min-width: fit-content;
-  white-space: nowrap;
+  display: inline-block !important;
+  padding: 20px 28px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  font-size: 1.4em !important;
+  min-width: fit-content !important;
+  white-space: nowrap !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Inline math styling */
-.markdownContent .katex-inline {
-  padding: 2px 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  font-size: 1.1em;
+.markdownContent .katex:not(.katex-display) {
+  padding: 3px 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 6px !important;
+  font-size: 1.1em !important;
+  margin: 0 2px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Theme-specific math styling */
 .theme-light-snow .markdownContent .katex-display > .katex {
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  color: #1F2937;
+  background: rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  color: #1F2937 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
-.theme-light-snow .markdownContent .katex-inline {
-  background: rgba(0, 0, 0, 0.04);
-  color: #1F2937;
+.theme-light-snow .markdownContent .katex:not(.katex-display) {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #1F2937 !important;
 }
 
 .theme-neon-ice .markdownContent .katex-display > .katex {
-  background: rgba(22, 133, 248, 0.08);
-  border: 1px solid rgba(22, 133, 248, 0.25);
-  box-shadow: 0 0 15px rgba(22, 133, 248, 0.15);
+  background: rgba(22, 133, 248, 0.12) !important;
+  border: 1px solid rgba(22, 133, 248, 0.3) !important;
+  box-shadow: 0 0 20px rgba(22, 133, 248, 0.2) !important;
+  color: #E8F4FD !important;
 }
 
-.theme-neon-ice .markdownContent .katex-inline {
-  background: rgba(22, 133, 248, 0.05);
+.theme-neon-ice .markdownContent .katex:not(.katex-display) {
+  background: rgba(22, 133, 248, 0.08) !important;
+  border: 1px solid rgba(22, 133, 248, 0.2) !important;
+  color: #E8F4FD !important;
+}
+
+/* Ensure KaTeX fonts load properly */
+.katex .katex-mathml {
+  display: none !important;
+}
+
+.katex .katex-html {
+  display: inline-block !important;
 }
 
 .mdH1 {

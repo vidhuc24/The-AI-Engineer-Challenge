@@ -89,6 +89,19 @@ function MessageContent({ content, isBot, theme }: { content: string; isBot: boo
           p: ({ children }) => <p className={styles.mdParagraph}>{children}</p>,
           strong: ({ children }) => <strong className={styles.mdBold}>{children}</strong>,
           em: ({ children }) => <em className={styles.mdItalic}>{children}</em>,
+          // Math components
+          span: ({ children, className, ...props }) => {
+            if (className?.includes('math-inline')) {
+              return <span className={`${styles.mathInline} ${className}`} {...props}>{children}</span>;
+            }
+            return <span className={className} {...props}>{children}</span>;
+          },
+          div: ({ children, className, ...props }) => {
+            if (className?.includes('math-display')) {
+              return <div className={`${styles.mathDisplay} ${className}`} {...props}>{children}</div>;
+            }
+            return <div className={className} {...props}>{children}</div>;
+          },
           code: ({ children, className }) => {
             const isInline = !className;
             return isInline ? (

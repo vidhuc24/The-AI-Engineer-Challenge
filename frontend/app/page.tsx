@@ -217,7 +217,7 @@ export default function Home() {
         setUnreadCount(prev => prev + 1);
       }
     }
-  }, [messages, isAtBottom, loading]);
+  }, [messages, isAtBottom, loading, scrollToBottom]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -353,7 +353,7 @@ export default function Home() {
           </label>
           
           <label className={styles.label}>
-            ✨ What's your vibe?
+            ✨ What&apos;s your vibe?
             <select
               className={styles.input}
               value={theme}

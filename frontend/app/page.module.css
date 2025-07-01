@@ -807,7 +807,30 @@ a.secondary {
   color: inherit;
 }
 
-/* Math equation styling - Simplified and more robust */
+/* Math equation styling - Enhanced and more robust */
+.markdownContent .katex {
+  font-size: 1.15em !important;
+  color: inherit !important;
+  line-height: 1.6 !important;
+}
+
+.markdownContent .katex-display {
+  display: block !important;
+  text-align: center !important;
+  margin: 20px 0 !important;
+  padding: 20px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-size: 1.4em !important;
+  overflow-x: auto !important;
+}
+
+.markdownContent .katex-html {
+  color: inherit !important;
+}
+
+/* Math equation containers */
 .mathInline {
   display: inline !important;
   font-size: 1.1em !important;
@@ -829,6 +852,20 @@ a.secondary {
 }
 
 /* Theme-specific math styling */
+.theme-light-snow .markdownContent .katex {
+  color: #1F2937 !important;
+}
+
+.theme-light-snow .markdownContent .katex-display {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #1F2937 !important;
+}
+
+.theme-light-snow .markdownContent .katex-html {
+  color: #1F2937 !important;
+}
+
 .theme-light-snow .mathInline {
   background: rgba(0, 0, 0, 0.06) !important;
   color: #1F2937 !important;
@@ -838,6 +875,21 @@ a.secondary {
   background: rgba(0, 0, 0, 0.06) !important;
   border: 1px solid rgba(0, 0, 0, 0.12) !important;
   color: #1F2937 !important;
+}
+
+.theme-neon-ice .markdownContent .katex {
+  color: #E8F4FD !important;
+}
+
+.theme-neon-ice .markdownContent .katex-display {
+  background: rgba(22, 133, 248, 0.08) !important;
+  border: 1px solid rgba(22, 133, 248, 0.2) !important;
+  color: #E8F4FD !important;
+  box-shadow: 0 0 15px rgba(22, 133, 248, 0.15) !important;
+}
+
+.theme-neon-ice .markdownContent .katex-html {
+  color: #E8F4FD !important;
 }
 
 .theme-neon-ice .mathInline {
@@ -852,82 +904,7 @@ a.secondary {
   box-shadow: 0 0 15px rgba(22, 133, 248, 0.15) !important;
 }
 
-/* Original KaTeX styling - keep as fallback */
-.markdownContent .katex {
-  font-size: 1.15em !important;
-  color: inherit !important;
-  line-height: 1.6 !important;
-}
-
-.mdH1 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin: 16px 0 12px 0;
-  color: inherit;
-  background: none;
-  border: none;
-  text-shadow: none;
-  box-shadow: none;
-}
-
-.mdH2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 14px 0 10px 0;
-  color: inherit;
-  background: none;
-  border: none;
-  text-shadow: none;
-  box-shadow: none;
-}
-
-.mdH3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 12px 0 8px 0;
-  color: inherit;
-  background: none;
-  border: none;
-  text-shadow: none;
-  box-shadow: none;
-}
-
-.mdParagraph {
-  margin: 8px 0;
-  line-height: 1.6;
-  color: inherit;
-}
-
-.mdBold {
-  font-weight: 700;
-  color: inherit;
-}
-
-.mdItalic {
-  font-style: italic;
-  color: inherit;
-  font-weight: 500;
-}
-
-.mdInlineCode {
-  color: inherit;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9em;
-  font-weight: 500;
-}
-
-.codeBlockContainer {
-  position: relative;
-  margin: 12px 0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Light snow theme code blocks - darker background with better text visibility */
+/* Light snow theme code blocks - Enhanced with better contrast */
 .theme-light-snow .codeBlockContainer {
   background: #1e1e1e !important;
   border: 1px solid rgba(0, 0, 0, 0.3) !important;
@@ -955,11 +932,21 @@ a.secondary {
   background: #1e1e1e !important;
 }
 
-/* Force light snow theme code text to be visible */
+/* Force light snow theme code text to be highly visible */
 .theme-light-snow .mdCodeBlock,
 .theme-light-snow .codeContent code,
-.theme-light-snow .codeContent * {
+.theme-light-snow .codeContent *,
+.theme-light-snow .hljs,
+.theme-light-snow .hljs * {
   color: #d4d4d4 !important;
+  background: transparent !important;
+}
+
+/* Ensure inline code is also visible in light snow */
+.theme-light-snow .mdInlineCode {
+  background: rgba(0, 0, 0, 0.1) !important;
+  color: #1F2937 !important;
+  font-weight: 600 !important;
 }
 
 .codeHeader {
@@ -1140,4 +1127,72 @@ a.secondary {
   border: 1px solid rgba(22, 133, 248, 0.15);
   border-radius: 18px;
   box-shadow: none;
+}
+
+.mdH1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 16px 0 12px 0;
+  color: inherit;
+  background: none;
+  border: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+.mdH2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 14px 0 10px 0;
+  color: inherit;
+  background: none;
+  border: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+.mdH3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 12px 0 8px 0;
+  color: inherit;
+  background: none;
+  border: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+.mdParagraph {
+  margin: 8px 0;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.mdBold {
+  font-weight: 700;
+  color: inherit;
+}
+
+.mdItalic {
+  font-style: italic;
+  color: inherit;
+  font-weight: 500;
+}
+
+.mdInlineCode {
+  color: inherit;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.codeBlockContainer {
+  position: relative;
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

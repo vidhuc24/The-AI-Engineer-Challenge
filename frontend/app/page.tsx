@@ -610,19 +610,6 @@ function ChatInterface({
           autoComplete="off"
         >
           <label className={styles.label}>
-            ✨ What&apos;s your vibe?
-            <select
-              className={styles.input}
-              value={theme}
-              onChange={(e) => setTheme(e.target.value as Theme)}
-            >
-              <option value="dark-ice">❄️ Dark Ice</option>
-              <option value="light-snow">☁️ Light Snow</option>
-              <option value="neon-ice">⚡ Neon Ice</option>
-            </select>
-          </label>
-
-          <label className={styles.label}>
             🤖 AI Brain
             <select
               className={styles.input}

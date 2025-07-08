@@ -193,28 +193,42 @@ Please upload some PDF documents first, then I'll be able to answer questions ab
         
         # Create an async generator function for streaming responses
         async def generate():
-            # Create a streaming chat completion request with full conversation history
-            stream = client.chat.completions.create(
-                model=request.model,
-                messages=enhanced_messages,  # Send the enhanced conversation history
-                stream=True  # Enable streaming response
-            )
-            
-            # Yield each chunk of the response as it becomes available in SSE format
-            for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    # Format as Server-Sent Events (SSE) with proper JSON structure
-                    sse_data = {
-                        "choices": [{
-                            "delta": {
-                                "content": chunk.choices[0].delta.content
-                            }
-                        }]
-                    }
-                    yield f"data: {json.dumps(sse_data)}\n\n"
-            
-            # Send completion signal
-            yield "data: [DONE]\n\n"
+            try:
+                # Create a streaming chat completion request with full conversation history
+                stream = client.chat.completions.create(
+                    model=request.model,
+                    messages=enhanced_messages,  # Send the enhanced conversation history
+                    stream=True  # Enable streaming response
+                )
+                
+                # Yield each chunk of the response as it becomes available in SSE format
+                for chunk in stream:
+                    if chunk.choices[0].delta.content is not None:
+                        # Format as Server-Sent Events (SSE) with proper JSON structure
+                        sse_data = {
+                            "choices": [{
+                                "delta": {
+                                    "content": chunk.choices[0].delta.content
+                                }
+                            }]
+                        }
+                        yield f"data: {json.dumps(sse_data)}\n\n"
+                
+                # Send completion signal
+                yield "data: [DONE]\n\n"
+                
+            except Exception as e:
+                # Handle streaming errors by sending an error message
+                error_message = f"Error: {str(e)}"
+                error_data = {
+                    "choices": [{
+                        "delta": {
+                            "content": error_message
+                        }
+                    }]
+                }
+                yield f"data: {json.dumps(error_data)}\n\n"
+                yield "data: [DONE]\n\n"
 
         # Return a streaming response to the client with proper SSE media type
         return StreamingResponse(generate(), media_type="text/event-stream")

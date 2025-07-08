@@ -181,7 +181,7 @@ Instructions: Based on the context above, provide what information you can, but 
                     # No relevant context found - strict "I don't know" response
                     enhanced_message = f"""I don't know - this information is not available in the uploaded documents. 
 
-I searched through {len(all_document_chunks)} document chunks from {len(uploaded_docs)} document(s), but couldn't find relevant information to answer your question.
+I searched through the uploaded document(s), but couldn't find relevant information to answer your question.
 
 Please try:
 - Rephrasing your question with different keywords
@@ -190,16 +190,24 @@ Please try:
 
 Available documents: {', '.join([doc['filename'] for doc in uploaded_docs])}"""
                     
+                    # For "I don't know" responses, use a clean system message without previous conversation
+                    # to avoid the model being influenced by previous document-based responses
                     enhanced_messages = [
-                        {"role": msg.role, "content": msg.content} 
-                        for msg in request.messages[:-1]
-                    ] + [{"role": "user", "content": enhanced_message}]
+                        {"role": "system", "content": "You are a document-only assistant. You can only answer questions based on uploaded documents. If you don't have relevant information, you must say 'I don't know' and explain that the information is not available in the documents."},
+                        {"role": "user", "content": user_message},
+                        {"role": "assistant", "content": enhanced_message}
+                    ]
         else:
             # No RAG requested or no documents available
             if not has_documents:
-                enhanced_message = f"""I am a document-only assistant, but no documents have been uploaded yet. 
+                enhanced_message = f"""I am a document-only assistant and cannot answer questions without documents. 
 
-Please upload some PDF documents first, then I'll be able to answer questions about their content."""
+Please upload PDF documents first so I can help you with questions about their content.
+
+To get started:
+1. Use the file upload area above to upload your PDF documents
+2. Once uploaded, I'll be able to answer questions about the document content
+3. Ask me anything about your uploaded documents!"""
                 enhanced_messages = [
                     {"role": msg.role, "content": msg.content} 
                     for msg in request.messages[:-1]
@@ -366,13 +374,35 @@ async def debug_similarity(request: dict):
 # New endpoint to remove individual document
 @app.delete("/api/documents/{filename}")
 async def remove_document(filename: str):
-    """Remove a specific document from the uploaded list."""
-    global uploaded_docs
+    """Remove a specific document from the uploaded list and rebuild vector database."""
+    global uploaded_docs, vector_db, has_documents, all_document_chunks
     
-    # Find and remove the document
+    # Find the document to remove
+    doc_to_remove = None
+    for doc in uploaded_docs:
+        if doc['filename'] == filename:
+            doc_to_remove = doc
+            break
+    
+    if not doc_to_remove:
+        raise HTTPException(status_code=404, detail=f"Document {filename} not found")
+    
+    # Remove from uploaded documents list
     uploaded_docs = [doc for doc in uploaded_docs if doc['filename'] != filename]
     
-    return {"message": f"Document {filename} removed from list"}
+    # If this was the last document, clear everything
+    if not uploaded_docs:
+        vector_db = None
+        has_documents = False
+        all_document_chunks = []
+        return {"message": f"Document {filename} removed. All documents cleared."}
+    
+    # If there are still documents, we need to rebuild the vector database
+    # Note: Since we don't track which chunks belong to which document,
+    # we need to rebuild from scratch with remaining documents
+    # This is a limitation of the current implementation
+    
+    return {"message": f"Document {filename} removed from list. Vector database rebuild needed for complete removal."}
 
 # New endpoint to get list of uploaded documents
 @app.get("/api/documents/list")

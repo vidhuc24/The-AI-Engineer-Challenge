@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         destination: 'http://localhost:8000/api/documents/clear',
       },
       {
+        source: '/api/documents/:filename',
+        destination: 'http://localhost:8000/api/documents/:filename',
+      },
+      {
         source: '/api/health',
         destination: 'http://localhost:8000/api/health',
       },

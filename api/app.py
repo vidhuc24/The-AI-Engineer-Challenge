@@ -106,16 +106,21 @@ If the context doesn't contain relevant information for the question, please say
 
 # New endpoint for document upload
 @app.post("/api/upload-document")
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(file: UploadFile = File(...), api_key: str = ""):
     global has_documents, vector_db
     
     try:
+        # Check if API key is provided
+        if not api_key:
+            raise HTTPException(status_code=400, detail="OpenAI API key is required for document processing")
+        
         # Check if file is PDF
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are supported")
         
-        # Initialize vector database
-        vector_db = initialize_vector_db()
+        # Initialize vector database with API key
+        embedding_model = EmbeddingModel(api_key=api_key)
+        vector_db = VectorDatabase(embedding_model=embedding_model)
         
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:

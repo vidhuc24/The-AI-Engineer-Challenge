@@ -214,6 +214,11 @@ export default function Home() {
       return;
     }
 
+    if (!apiKey.trim()) {
+      setError("Please enter your OpenAI API key first! 🔑");
+      return;
+    }
+
     setIsUploadingFile(true);
     setError("");
     setUploadSuccess("");
@@ -221,6 +226,7 @@ export default function Home() {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('api_key', apiKey);
 
       const response = await fetch('/api/upload-document', {
         method: 'POST',
@@ -228,7 +234,8 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Upload failed: ${response.status}`);
       }
 
       const data = await response.json();
@@ -241,7 +248,8 @@ export default function Home() {
       
     } catch (error) {
       console.error('File upload error:', error);
-      setError("Failed to upload document. Please try again! 🔄");
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload document. Please try again! 🔄";
+      setError(errorMessage);
     } finally {
       setIsUploadingFile(false);
     }

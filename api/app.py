@@ -33,8 +33,10 @@ app.add_middleware(
 # Global vector database instance - Initialize without embedding model to avoid API key requirement
 vector_db = None
 has_documents = False
-uploaded_docs = []  # Track uploaded documents
+uploaded_docs = []  # Track uploaded documents with metadata
+document_chunks = {}  # Track chunks by document: {filename: [chunks]}
 all_document_chunks = []  # Store all document chunks for rebuilding vector DB
+stored_api_key = None  # Store API key for rebuilding vector DB
 
 # Define the data model for chat requests using Pydantic
 # This ensures incoming request data is properly validated
@@ -297,7 +299,13 @@ async def upload_document(
             split_docs = text_splitter.split_texts(documents)
             
             # Initialize vector database with API key
-            global vector_db, has_documents, all_document_chunks
+            global vector_db, has_documents, all_document_chunks, document_chunks, stored_api_key
+            
+            # Store the API key for later use
+            stored_api_key = api_key
+            
+            # Store chunks for this specific document
+            document_chunks[file.filename] = split_docs
             
             # Add new chunks to accumulated chunks
             all_document_chunks.extend(split_docs)
@@ -315,7 +323,8 @@ async def upload_document(
             
             uploaded_docs.append({
                 "filename": file.filename,
-                "timestamp": os.path.getmtime(temp_file_path)
+                "timestamp": os.path.getmtime(temp_file_path),
+                "chunk_count": len(split_docs)
             })
             
             return {"message": f"Document {file.filename} uploaded successfully. Total chunks: {len(all_document_chunks)}"}
@@ -375,7 +384,7 @@ async def debug_similarity(request: dict):
 @app.delete("/api/documents/{filename}")
 async def remove_document(filename: str):
     """Remove a specific document from the uploaded list and rebuild vector database."""
-    global uploaded_docs, vector_db, has_documents, all_document_chunks
+    global uploaded_docs, vector_db, has_documents, all_document_chunks, document_chunks, stored_api_key
     
     # Find the document to remove
     doc_to_remove = None
@@ -387,6 +396,18 @@ async def remove_document(filename: str):
     if not doc_to_remove:
         raise HTTPException(status_code=404, detail=f"Document {filename} not found")
     
+    # Remove chunks for this document
+    if filename in document_chunks:
+        chunks_to_remove = document_chunks[filename]
+        
+        # Remove chunks from all_document_chunks
+        for chunk in chunks_to_remove:
+            if chunk in all_document_chunks:
+                all_document_chunks.remove(chunk)
+        
+        # Remove from document_chunks tracking
+        del document_chunks[filename]
+    
     # Remove from uploaded documents list
     uploaded_docs = [doc for doc in uploaded_docs if doc['filename'] != filename]
     
@@ -395,14 +416,24 @@ async def remove_document(filename: str):
         vector_db = None
         has_documents = False
         all_document_chunks = []
+        document_chunks = {}
+        stored_api_key = None
         return {"message": f"Document {filename} removed. All documents cleared."}
     
-    # If there are still documents, we need to rebuild the vector database
-    # Note: Since we don't track which chunks belong to which document,
-    # we need to rebuild from scratch with remaining documents
-    # This is a limitation of the current implementation
-    
-    return {"message": f"Document {filename} removed from list. Vector database rebuild needed for complete removal."}
+    # Rebuild vector database with remaining chunks
+    try:
+        if all_document_chunks and stored_api_key:
+            vector_db = VectorDatabase(
+                embedding_model=EmbeddingModel(api_key=stored_api_key)
+            )
+            vector_db = await vector_db.abuild_from_list(all_document_chunks)
+        else:
+            vector_db = None
+            has_documents = False
+            
+        return {"message": f"Document {filename} removed successfully. Vector database rebuilt with {len(all_document_chunks)} remaining chunks."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error rebuilding vector database: {str(e)}")
 
 # New endpoint to get list of uploaded documents
 @app.get("/api/documents/list")
@@ -415,11 +446,13 @@ async def get_uploaded_documents():
 # New endpoint to clear documents
 @app.post("/api/documents/clear")
 async def clear_documents():
-    global has_documents, vector_db, uploaded_docs, all_document_chunks
+    global has_documents, vector_db, uploaded_docs, all_document_chunks, document_chunks, stored_api_key
     vector_db = None  # Reset vector database
     has_documents = False
     uploaded_docs = []  # Clear uploaded documents list
-    all_document_chunks = [] # Clear accumulated chunks
+    all_document_chunks = []  # Clear accumulated chunks
+    document_chunks = {}  # Clear document chunks tracking
+    stored_api_key = None  # Clear stored API key
     return {"message": "Documents cleared successfully"}
 
 # Define a health check endpoint to verify API status

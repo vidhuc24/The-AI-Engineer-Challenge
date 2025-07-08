@@ -104,10 +104,10 @@ I can only answer questions based on the content of these uploaded documents. Pl
                 print(f"Query: {user_message}")
                 print(f"Similarity scores: {[(score, text[:50] + '...') for text, score in search_results]}")
                 
-                # Multi-tier similarity thresholds for different confidence levels
-                HIGH_CONFIDENCE_THRESHOLD = 0.85  # Very relevant content
-                MEDIUM_CONFIDENCE_THRESHOLD = 0.70  # Moderately relevant content
-                LOW_CONFIDENCE_THRESHOLD = 0.55   # Potentially relevant content
+                # Define confidence thresholds based on actual text-embedding-3-small performance
+                HIGH_CONFIDENCE_THRESHOLD = 0.60  # Top tier relevance - confident answers
+                MEDIUM_CONFIDENCE_THRESHOLD = 0.40  # Moderate relevance - helpful but cautious
+                LOW_CONFIDENCE_THRESHOLD = 0.25   # Below this = "I don't know"
                 
                 high_confidence_contexts = []
                 medium_confidence_contexts = []

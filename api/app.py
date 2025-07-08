@@ -77,47 +77,60 @@ async def chat(request: ChatRequest):
                     doc_info += f"- {doc['filename']}\n"
                 doc_info += f"\nTotal document chunks in vector database: {len(vector_db.vectors)}"
                 
-                enhanced_message = f"""I am ChillGPT with RAG (Retrieval-Augmented Generation) capabilities enabled.
+                enhanced_message = f"""I am a document-only assistant with access to the following documents:
 
 {doc_info}
 
 You asked: {user_message}
 
-I can answer questions about the content of these uploaded documents. The documents have been processed and split into searchable chunks that I can retrieve to provide accurate, context-aware responses."""
+I can only answer questions based on the content of these uploaded documents. Please ask me specific questions about the information contained in these files."""
                 
                 # Replace the last message with the enhanced version
                 enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
             else:
-                # For regular queries, search for relevant context
-                relevant_contexts = vector_db.search_by_text(user_message, k=3, return_as_text=True)
+                # For regular queries, search for relevant context with similarity threshold
+                search_results = vector_db.search_by_text(user_message, k=3, return_as_text=False)
+                
+                # Set similarity threshold - only use results above this threshold
+                SIMILARITY_THRESHOLD = 0.7
+                relevant_contexts = []
+                
+                for text, similarity_score in search_results:
+                    if similarity_score >= SIMILARITY_THRESHOLD:
+                        relevant_contexts.append(text)
                 
                 if relevant_contexts:
-                    # Build context string
+                    # Build context string from relevant documents
                     context_str = "\n\n".join([f"Context {i+1}: {ctx}" for i, ctx in enumerate(relevant_contexts)])
                     
-                    # Enhance the user message with context
-                    enhanced_message = f"""Based on the following context from uploaded documents:
+                    # Strict document-only prompt
+                    enhanced_message = f"""You are a document-only assistant. You can ONLY answer questions based on the following context from uploaded documents. If the information is not in the context below, you MUST respond with "I don't know - this information is not available in the uploaded documents. Please ask about topics covered in the documents."
 
+Context from uploaded documents:
 {context_str}
 
-Please answer this question: {user_message}
+Question: {user_message}
 
-If the context doesn't contain relevant information for the question, please say so and answer based on your general knowledge."""
+Instructions: Answer ONLY based on the context above. If the answer is not in the context, respond with "I don't know - this information is not available in the uploaded documents."""
                     
                     # Replace the last message with the enhanced version
                     enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
                 else:
-                    # No relevant context found, but inform about document availability
-                    doc_info = f"I have access to {len(uploaded_docs)} uploaded document(s), but couldn't find relevant context for your question."
-                    enhanced_message = f"""{doc_info}
+                    # No relevant context found - strict "I don't know" response
+                    enhanced_message = f"""I don't know - this information is not available in the uploaded documents. 
 
-You asked: {user_message}
-
-I'll answer based on my general knowledge, but feel free to ask more specific questions about the uploaded documents."""
+I can only answer questions based on the content of the {len(uploaded_docs)} document(s) you've uploaded. Please try rephrasing your question to focus on topics covered in these documents, or ask about specific sections, concepts, or details mentioned in the files."""
                     
                     enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
         else:
-            enhanced_messages = request.messages
+            # No RAG requested or no documents available
+            if not has_documents:
+                enhanced_message = f"""I am a document-only assistant, but no documents have been uploaded yet. 
+
+Please upload some PDF documents first, then I'll be able to answer questions about their content."""
+                enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+            else:
+                enhanced_messages = request.messages
         
         # Create an async generator function for streaming responses
         async def generate():

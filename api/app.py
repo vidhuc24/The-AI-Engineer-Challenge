@@ -38,8 +38,12 @@ all_document_chunks = []  # Store all document chunks for rebuilding vector DB
 
 # Define the data model for chat requests using Pydantic
 # This ensures incoming request data is properly validated
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
 class ChatRequest(BaseModel):
-    messages: List[Dict[str, str]]  # Full conversation history
+    messages: List[ChatMessage]  # Full conversation history
     model: Optional[str] = "gpt-4o-mini"  # Optional model selection with default
     api_key: str          # OpenAI API key for authentication
     use_rag: Optional[bool] = False  # Whether to use RAG enhancement
@@ -59,7 +63,7 @@ async def chat(request: ChatRequest):
         client = OpenAI(api_key=request.api_key)
         
         # Get the user's latest message
-        user_message = request.messages[-1]["content"] if request.messages else ""
+        user_message = request.messages[-1].content if request.messages else ""
         
         # If RAG is requested and we have documents, enhance the query
         if request.use_rag and has_documents and user_message and vector_db is not None:
@@ -88,7 +92,10 @@ You asked: {user_message}
 I can only answer questions based on the content of these uploaded documents. Please ask me specific questions about the information contained in these files."""
                 
                 # Replace the last message with the enhanced version
-                enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+                enhanced_messages = [
+                    {"role": msg.role, "content": msg.content} 
+                    for msg in request.messages[:-1]
+                ] + [{"role": "user", "content": enhanced_message}]
             else:
                 # For regular queries, search for relevant context with similarity threshold
                 search_results = vector_db.search_by_text(user_message, k=5, return_as_text=False)
@@ -166,7 +173,10 @@ Question: {user_message}
 Instructions: Based on the context above, provide what information you can, but clearly indicate that the relevance is uncertain and suggest the user rephrase their question for better results."""
                     
                     # Replace the last message with the enhanced version
-                    enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+                    enhanced_messages = [
+                        {"role": msg.role, "content": msg.content} 
+                        for msg in request.messages[:-1]
+                    ] + [{"role": "user", "content": enhanced_message}]
                 else:
                     # No relevant context found - strict "I don't know" response
                     enhanced_message = f"""I don't know - this information is not available in the uploaded documents. 
@@ -180,16 +190,25 @@ Please try:
 
 Available documents: {', '.join([doc['filename'] for doc in uploaded_docs])}"""
                     
-                    enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+                    enhanced_messages = [
+                        {"role": msg.role, "content": msg.content} 
+                        for msg in request.messages[:-1]
+                    ] + [{"role": "user", "content": enhanced_message}]
         else:
             # No RAG requested or no documents available
             if not has_documents:
                 enhanced_message = f"""I am a document-only assistant, but no documents have been uploaded yet. 
 
 Please upload some PDF documents first, then I'll be able to answer questions about their content."""
-                enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+                enhanced_messages = [
+                    {"role": msg.role, "content": msg.content} 
+                    for msg in request.messages[:-1]
+                ] + [{"role": "user", "content": enhanced_message}]
             else:
-                enhanced_messages = request.messages
+                enhanced_messages = [
+                    {"role": msg.role, "content": msg.content} 
+                    for msg in request.messages
+                ]
         
         # Create an async generator function for streaming responses
         async def generate():

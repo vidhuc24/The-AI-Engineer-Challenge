@@ -501,7 +501,10 @@ function ChatInterface({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: updatedMessages,
+          messages: updatedMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })), // Strip timestamp field for backend compatibility
           model,
           api_key: apiKey,
           use_rag: hasDocuments, // Always use RAG when documents are available

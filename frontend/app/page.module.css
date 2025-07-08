@@ -1752,9 +1752,10 @@ a.secondary {
 }
 
 .rightSide {
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .subtitle {

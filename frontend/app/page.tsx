@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -265,13 +265,11 @@ function ApiKeyScreen({ onApiKeySubmit, error, theme, setTheme }: {
 function ChatInterface({ 
   apiKey, 
   onBack, 
-  theme, 
-  setTheme 
+  theme 
 }: {
   apiKey: string;
   onBack: () => void;
   theme: Theme;
-  setTheme: (theme: Theme) => void;
 }) {
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([
@@ -299,6 +297,16 @@ function ChatInterface({
   const charCount = userMessage.length;
   const tokenCount = estimateTokens(userMessage);
   const isLongMessage = charCount > 1000;
+
+  // Scroll to bottom of chat
+  const scrollToBottom = useCallback((force = false) => {
+    if (chatEndRef.current && (isAtBottom || force)) {
+      chatEndRef.current.scrollIntoView({ 
+        behavior: force ? 'auto' : 'smooth',
+        block: 'end'
+      });
+    }
+  }, [isAtBottom]);
 
   // Check document status on component mount
   useEffect(() => {
@@ -365,7 +373,7 @@ function ChatInterface({
       });
 
       if (response.ok) {
-        const result = await response.json();
+        await response.json();
         setUploadSuccess(`✅ Successfully uploaded ${file.name}`);
         setTimeout(() => setUploadSuccess(""), 3000);
         
@@ -448,16 +456,6 @@ function ChatInterface({
     }
   };
 
-  // Scroll to bottom of chat
-  const scrollToBottom = (force = false) => {
-    if (chatEndRef.current && (isAtBottom || force)) {
-      chatEndRef.current.scrollIntoView({ 
-        behavior: force ? 'auto' : 'smooth',
-        block: 'end'
-      });
-    }
-  };
-
   // Auto-scroll when new messages arrive
   useEffect(() => {
     if (isAtBottom) {
@@ -466,7 +464,7 @@ function ChatInterface({
       // Increment unread count if not at bottom
       setUnreadCount(prev => prev + 1);
     }
-  }, [messages]);
+  }, [messages, isAtBottom, scrollToBottom]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -550,7 +548,7 @@ function ChatInterface({
                   { ...botMessage, content: botResponse }
                 ]);
               }
-            } catch (e) {
+            } catch {
               // Skip invalid JSON
             }
           }
@@ -850,7 +848,6 @@ export default function Home() {
       apiKey={apiKey}
       onBack={handleBack}
       theme={theme}
-      setTheme={setTheme}
     />
   );
 }

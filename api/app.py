@@ -29,8 +29,8 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers in requests
 )
 
-# Global vector database instance
-vector_db = VectorDatabase()
+# Global vector database instance - Initialize without embedding model to avoid API key requirement
+vector_db = None
 has_documents = False
 
 # Define the data model for chat requests using Pydantic
@@ -40,6 +40,13 @@ class ChatRequest(BaseModel):
     model: Optional[str] = "gpt-4.1-mini"  # Optional model selection with default
     api_key: str          # OpenAI API key for authentication
     use_rag: Optional[bool] = False  # Whether to use RAG enhancement
+
+# Helper function to initialize vector database with API key
+def initialize_vector_db():
+    global vector_db
+    if vector_db is None:
+        vector_db = VectorDatabase()
+    return vector_db
 
 # Define the main chat endpoint that handles POST requests
 @app.post("/api/chat")
@@ -52,7 +59,7 @@ async def chat(request: ChatRequest):
         user_message = request.messages[-1]["content"] if request.messages else ""
         
         # If RAG is requested and we have documents, enhance the query
-        if request.use_rag and has_documents and user_message:
+        if request.use_rag and has_documents and user_message and vector_db is not None:
             # Search for relevant context
             relevant_contexts = vector_db.search_by_text(user_message, k=3, return_as_text=True)
             
@@ -100,12 +107,15 @@ If the context doesn't contain relevant information for the question, please say
 # New endpoint for document upload
 @app.post("/api/upload-document")
 async def upload_document(file: UploadFile = File(...)):
-    global has_documents
+    global has_documents, vector_db
     
     try:
         # Check if file is PDF
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are supported")
+        
+        # Initialize vector database
+        vector_db = initialize_vector_db()
         
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
@@ -144,14 +154,14 @@ async def upload_document(file: UploadFile = File(...)):
 async def get_document_status():
     return {
         "has_documents": has_documents,
-        "document_count": len(vector_db.vectors) if has_documents else 0
+        "document_count": len(vector_db.vectors) if has_documents and vector_db else 0
     }
 
 # New endpoint to clear documents
 @app.post("/api/documents/clear")
 async def clear_documents():
     global has_documents, vector_db
-    vector_db = VectorDatabase()
+    vector_db = None  # Reset vector database
     has_documents = False
     return {"message": "Documents cleared successfully"}
 

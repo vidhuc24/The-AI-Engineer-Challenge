@@ -61,26 +61,61 @@ async def chat(request: ChatRequest):
         
         # If RAG is requested and we have documents, enhance the query
         if request.use_rag and has_documents and user_message and vector_db is not None:
-            # Search for relevant context
-            relevant_contexts = vector_db.search_by_text(user_message, k=3, return_as_text=True)
+            # Check if this is a meta-query about the system/documents
+            meta_query_keywords = [
+                "what documents", "which documents", "what files", "which files",
+                "what do you have", "what's in your context", "what context",
+                "available documents", "uploaded documents", "document list"
+            ]
             
-            if relevant_contexts:
-                # Build context string
-                context_str = "\n\n".join([f"Context {i+1}: {ctx}" for i, ctx in enumerate(relevant_contexts)])
+            is_meta_query = any(keyword in user_message.lower() for keyword in meta_query_keywords)
+            
+            if is_meta_query:
+                # For meta-queries, provide system information
+                doc_info = f"I have access to {len(uploaded_docs)} uploaded document(s):\n"
+                for i, doc in enumerate(uploaded_docs, 1):
+                    doc_info += f"- {doc['filename']}\n"
+                doc_info += f"\nTotal document chunks in vector database: {len(vector_db.vectors)}"
                 
-                # Enhance the user message with context
-                enhanced_message = f"""Based on the following context from uploaded documents:
+                enhanced_message = f"""I am ChillGPT with RAG (Retrieval-Augmented Generation) capabilities enabled.
+
+{doc_info}
+
+You asked: {user_message}
+
+I can answer questions about the content of these uploaded documents. The documents have been processed and split into searchable chunks that I can retrieve to provide accurate, context-aware responses."""
+                
+                # Replace the last message with the enhanced version
+                enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+            else:
+                # For regular queries, search for relevant context
+                relevant_contexts = vector_db.search_by_text(user_message, k=3, return_as_text=True)
+                
+                if relevant_contexts:
+                    # Build context string
+                    context_str = "\n\n".join([f"Context {i+1}: {ctx}" for i, ctx in enumerate(relevant_contexts)])
+                    
+                    # Enhance the user message with context
+                    enhanced_message = f"""Based on the following context from uploaded documents:
 
 {context_str}
 
 Please answer this question: {user_message}
 
 If the context doesn't contain relevant information for the question, please say so and answer based on your general knowledge."""
-                
-                # Replace the last message with the enhanced version
-                enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
-            else:
-                enhanced_messages = request.messages
+                    
+                    # Replace the last message with the enhanced version
+                    enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+                else:
+                    # No relevant context found, but inform about document availability
+                    doc_info = f"I have access to {len(uploaded_docs)} uploaded document(s), but couldn't find relevant context for your question."
+                    enhanced_message = f"""{doc_info}
+
+You asked: {user_message}
+
+I'll answer based on my general knowledge, but feel free to ask more specific questions about the uploaded documents."""
+                    
+                    enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
         else:
             enhanced_messages = request.messages
         
@@ -169,15 +204,25 @@ async def upload_document(
 async def get_document_status():
     return {
         "has_documents": has_documents,
-        "document_count": len(vector_db.vectors) if has_documents and vector_db else 0
+        "document_count": len(vector_db.vectors) if has_documents and vector_db else 0,
+        "uploaded_documents": uploaded_docs
+    }
+
+# New endpoint to get list of uploaded documents
+@app.get("/api/documents/list")
+async def get_uploaded_documents():
+    return {
+        "documents": uploaded_docs,
+        "total": len(uploaded_docs)
     }
 
 # New endpoint to clear documents
 @app.post("/api/documents/clear")
 async def clear_documents():
-    global has_documents, vector_db
+    global has_documents, vector_db, uploaded_docs
     vector_db = None  # Reset vector database
     has_documents = False
+    uploaded_docs = []  # Clear uploaded documents list
     return {"message": "Documents cleared successfully"}
 
 # Define a health check endpoint to verify API status

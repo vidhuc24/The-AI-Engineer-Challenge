@@ -54,12 +54,6 @@ def initialize_vector_db():
 # Define the main chat endpoint that handles POST requests
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
-    print(f"DEBUG: Received chat request:")
-    print(f"  Messages count: {len(request.messages)}")
-    print(f"  Model: {request.model}")
-    print(f"  API key starts with: {request.api_key[:10]}...")
-    print(f"  Use RAG: {request.use_rag}")
-    
     try:
         # Initialize OpenAI client with the provided API key
         client = OpenAI(api_key=request.api_key)

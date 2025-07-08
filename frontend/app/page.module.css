@@ -1692,3 +1692,432 @@ a.secondary {
     transform: translateX(18px);
   }
 }
+
+/* API Key Screen Styles */
+.apiKeyScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  transition: all 0.3s ease;
+}
+
+.apiKeyContainer {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 40px;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.apiKeyForm {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.apiKeySection {
+  margin-bottom: 30px;
+}
+
+.apiKeyLabel {
+  display: block;
+  text-align: left;
+}
+
+.apiKeyTitle {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #E8E8E8;
+}
+
+.apiKeyInput {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #E8E8E8;
+  font-size: 16px;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.apiKeyInput:focus {
+  outline: none;
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.apiKeyInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.apiKeyInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.apiKeyHint {
+  display: block;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 5px;
+}
+
+.themeSection {
+  margin-bottom: 30px;
+}
+
+.themeLabel {
+  display: block;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #E8E8E8;
+}
+
+.themeSelect {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #E8E8E8;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.themeSelect:focus {
+  outline: none;
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.themeSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.continueButton {
+  width: 100%;
+  padding: 18px 30px;
+  background: linear-gradient(135deg, #4A90E2, #5BA3F5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.continueButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3d7bc6, #4A90E2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+.continueButton:active {
+  transform: translateY(0);
+}
+
+.continueButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.arrow {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.continueButton:hover:not(:disabled) .arrow {
+  transform: translateX(3px);
+}
+
+.featurePreview {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+  text-align: left;
+}
+
+.featureTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #E8E8E8;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.featureList li {
+  padding: 8px 0;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.featureList li:last-child {
+  border-bottom: none;
+}
+
+/* User Info Section in Chat Interface */
+.userInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.apiKeyStatus {
+  font-size: 14px;
+  color: #4CAF50;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.changeApiKeyButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #E8E8E8;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.changeApiKeyButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.changeApiKeyButton:active {
+  transform: scale(0.98);
+}
+
+/* Light Snow Theme Overrides */
+.theme-light-snow .apiKeyForm {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light-snow .apiKeyTitle,
+.theme-light-snow .themeLabel,
+.theme-light-snow .featureTitle {
+  color: #2C3136;
+}
+
+.theme-light-snow .apiKeyInput,
+.theme-light-snow .themeSelect {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  color: #2C3136;
+}
+
+.theme-light-snow .apiKeyInput:focus,
+.theme-light-snow .themeSelect:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.theme-light-snow .apiKeyInput::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.theme-light-snow .apiKeyHint {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.theme-light-snow .featurePreview {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light-snow .featureList li {
+  color: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light-snow .userInfo {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light-snow .changeApiKeyButton {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #2C3136;
+}
+
+.theme-light-snow .changeApiKeyButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.theme-light-snow .subtitle {
+  color: #2C3136;
+}
+
+/* Neon Ice Theme Overrides */
+.theme-neon-ice .apiKeyForm {
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+}
+
+.theme-neon-ice .apiKeyTitle,
+.theme-neon-ice .themeLabel,
+.theme-neon-ice .featureTitle {
+  color: #00FFFF;
+}
+
+.theme-neon-ice .apiKeyInput,
+.theme-neon-ice .themeSelect {
+  background: rgba(0, 255, 255, 0.05);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  color: #00FFFF;
+}
+
+.theme-neon-ice .apiKeyInput:focus,
+.theme-neon-ice .themeSelect:focus {
+  border-color: #00FFFF;
+  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+}
+
+.theme-neon-ice .apiKeyInput::placeholder {
+  color: rgba(0, 255, 255, 0.4);
+}
+
+.theme-neon-ice .apiKeyHint {
+  color: rgba(0, 255, 255, 0.6);
+}
+
+.theme-neon-ice .continueButton {
+  background: linear-gradient(135deg, #00FFFF, #0080FF);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+}
+
+.theme-neon-ice .continueButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00E0E0, #00FFFF);
+  box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+}
+
+.theme-neon-ice .featurePreview {
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.theme-neon-ice .featureList li {
+  color: rgba(0, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.theme-neon-ice .userInfo {
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.theme-neon-ice .changeApiKeyButton {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  color: #00FFFF;
+}
+
+.theme-neon-ice .changeApiKeyButton:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.4);
+}
+
+.theme-neon-ice .subtitle {
+  color: #00FFFF;
+}
+
+/* Mobile Responsiveness for API Key Screen */
+@media (max-width: 768px) {
+  .apiKeyScreen {
+    padding: 10px;
+  }
+  
+  .apiKeyContainer {
+    max-width: 100%;
+  }
+  
+  .apiKeyForm {
+    padding: 25px;
+  }
+  
+  .apiKeyTitle {
+    font-size: 16px;
+  }
+  
+  .apiKeyInput,
+  .themeSelect {
+    padding: 12px 15px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .continueButton {
+    padding: 15px 25px;
+    font-size: 16px;
+  }
+  
+  .featurePreview {
+    padding: 20px;
+  }
+  
+  .featureTitle {
+    font-size: 16px;
+  }
+  
+  .featureList li {
+    font-size: 14px;
+  }
+  
+  .userInfo {
+    padding: 12px 15px;
+  }
+  
+  .changeApiKeyButton {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}

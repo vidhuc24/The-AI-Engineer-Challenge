@@ -145,8 +145,122 @@ function FunnyError({ message }: { message: string }) {
   );
 }
 
-export default function Home() {
+// API Key Entry Screen Component
+function ApiKeyScreen({ onApiKeySubmit, error, theme, setTheme }: {
+  onApiKeySubmit: (apiKey: string) => void;
+  error: string;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}) {
   const [apiKey, setApiKey] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!apiKey.trim()) return;
+    
+    setIsValidating(true);
+    // Add a small delay to show the loading state
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onApiKeySubmit(apiKey);
+    setIsValidating(false);
+  };
+
+  return (
+    <div className={`${styles.apiKeyScreen} ${styles[`theme-${theme}`]}`}>
+      <div className={styles.apiKeyContainer}>
+        <div className={styles.logoContainer}>
+          <img 
+            src="/my_logo.png" 
+            alt="ChillGPT Logo" 
+            className={styles.logo}
+          />
+          <h1 className={styles.logoTitle}>ChillGPT</h1>
+          <p className={styles.subtitle}>Your AI-powered document assistant</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.apiKeyForm}>
+          <div className={styles.apiKeySection}>
+            <label className={styles.apiKeyLabel}>
+              <span className={styles.apiKeyTitle}>🔑 Enter your OpenAI API Key</span>
+              <input
+                type="password"
+                className={styles.apiKeyInput}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="sk-..."
+                required
+                disabled={isValidating}
+              />
+              <span className={styles.apiKeyHint}>
+                Your API key is stored locally and never shared
+              </span>
+            </label>
+          </div>
+
+          <div className={styles.themeSection}>
+            <label className={styles.themeLabel}>
+              ✨ Choose your vibe
+              <select
+                className={styles.themeSelect}
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as Theme)}
+                disabled={isValidating}
+              >
+                <option value="dark-ice">❄️ Dark Ice</option>
+                <option value="light-snow">☁️ Light Snow</option>
+                <option value="neon-ice">⚡ Neon Ice</option>
+              </select>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            className={styles.continueButton}
+            disabled={!apiKey.trim() || isValidating}
+          >
+            {isValidating ? (
+              <>
+                <span className={styles.spinner}>⏳</span>
+                Connecting...
+              </>
+            ) : (
+              <>
+                Continue to Chat
+                <span className={styles.arrow}>→</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <FunnyError message={error} />
+
+        <div className={styles.featurePreview}>
+          <h3 className={styles.featureTitle}>What you can do:</h3>
+          <ul className={styles.featureList}>
+            <li>📄 Upload PDF documents</li>
+            <li>🧠 Ask questions about your documents</li>
+            <li>💬 Get intelligent, context-aware responses</li>
+            <li>🎨 Enjoy beautiful markdown formatting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main Chat Interface Component
+function ChatInterface({ 
+  apiKey, 
+  onBack, 
+  theme, 
+  setTheme 
+}: {
+  apiKey: string;
+  onBack: () => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}) {
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", content: "Hey! I'm your document assistant. Upload some PDFs and I'll help you with questions about them! 📄", timestamp: Date.now() },
@@ -156,7 +270,6 @@ export default function Home() {
   const [model, setModel] = useState("gpt-4.1-mini");
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [theme, setTheme] = useState<Theme>('dark-ice');
   
   // RAG-related state
   const [hasDocuments, setHasDocuments] = useState(false);
@@ -199,31 +312,29 @@ export default function Home() {
   const removeDocument = async (filename: string) => {
     try {
       const response = await fetch(`/api/documents/${encodeURIComponent(filename)}`, {
-        method: 'DELETE',
+        method: 'DELETE'
       });
       
       if (response.ok) {
-        setUploadSuccess(`Document ${filename} removed`);
+        setUploadSuccess(`✅ Removed ${filename}`);
         setTimeout(() => setUploadSuccess(""), 3000);
-        checkDocumentStatus(); // Refresh document list
+        await checkDocumentStatus();
       } else {
-        throw new Error(`Failed to remove document: ${response.status}`);
+        setError(`Failed to remove ${filename}`);
+        setTimeout(() => setError(""), 3000);
       }
     } catch (error) {
       console.error('Error removing document:', error);
-      setError(`Failed to remove document: ${error}`);
+      setError(`Error removing ${filename}`);
+      setTimeout(() => setError(""), 3000);
     }
   };
 
   // Handle file upload
   const handleFileUpload = async (file: File) => {
     if (!file.type.includes('pdf')) {
-      setError("Only PDF files are supported for now! 📄");
-      return;
-    }
-
-    if (!apiKey.trim()) {
-      setError("Please enter your OpenAI API key first! 🔑");
+      setError('Please upload a PDF file');
+      setTimeout(() => setError(""), 3000);
       return;
     }
 
@@ -241,23 +352,22 @@ export default function Home() {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Upload failed: ${response.status}`);
+      if (response.ok) {
+        const result = await response.json();
+        setUploadSuccess(`✅ Successfully uploaded ${file.name}`);
+        setTimeout(() => setUploadSuccess(""), 3000);
+        
+        // Refresh document status
+        await checkDocumentStatus();
+      } else {
+        const errorData = await response.json();
+        setError(`Upload failed: ${errorData.detail || 'Unknown error'}`);
+        setTimeout(() => setError(""), 3000);
       }
-
-      const data = await response.json();
-      setUploadSuccess(`✅ ${data.message} (${data.chunks} chunks processed)`);
-      setHasDocuments(true);
-      setDocumentCount(data.chunks);
-      
-      // Clear success message after 5 seconds
-      setTimeout(() => setUploadSuccess(""), 5000);
-      
     } catch (error) {
-      console.error('File upload error:', error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to upload document. Please try again! 🔄";
-      setError(errorMessage);
+      console.error('Error uploading file:', error);
+      setError('Error uploading file. Please try again.');
+      setTimeout(() => setError(""), 3000);
     } finally {
       setIsUploadingFile(false);
     }
@@ -266,13 +376,10 @@ export default function Home() {
   // Handle drag and drop
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileUpload(files[0]);
@@ -281,13 +388,13 @@ export default function Home() {
 
   // Handle file input change
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileUpload(files[0]);
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
     }
   };
 
-  // Clear documents
+  // Clear all documents
   const clearDocuments = async () => {
     try {
       const response = await fetch('/api/documents/clear', {
@@ -295,116 +402,98 @@ export default function Home() {
       });
       
       if (response.ok) {
-        setHasDocuments(false);
-        setDocumentCount(0);
-        setRagEnabled(false);
-        setUploadSuccess("📄 Documents cleared successfully!");
+        setUploadSuccess('✅ All documents cleared');
         setTimeout(() => setUploadSuccess(""), 3000);
+        await checkDocumentStatus();
+      } else {
+        setError('Failed to clear documents');
+        setTimeout(() => setError(""), 3000);
       }
     } catch (error) {
       console.error('Error clearing documents:', error);
-      setError("Failed to clear documents! 🔄");
+      setError('Error clearing documents');
+      setTimeout(() => setError(""), 3000);
     }
   };
 
   // Check if user is at bottom of chat
   const checkIfAtBottom = () => {
-    if (!chatContainerRef.current) return true;
-    
-    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-    const threshold = 50;
-    return scrollHeight - scrollTop - clientHeight < threshold;
+    if (chatContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+      return scrollHeight - scrollTop - clientHeight < 50;
+    }
+    return true;
   };
 
-  // Handle scroll events
+  // Handle scroll event
   const handleScroll = () => {
     const atBottom = checkIfAtBottom();
-    setIsAtBottom(atBottom);
-    
-    if (atBottom) {
-      setUnreadCount(0);
-    }
-  };
-
-  // Smart scroll to bottom
-  const scrollToBottom = (force = false) => {
-    if (force || isAtBottom) {
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      setUnreadCount(0);
-    }
-  };
-
-  // Auto-scroll effect for new messages - Fix unread count logic
-  useEffect(() => {
-    if (isAtBottom) {
-      scrollToBottom(true);
-    } else {
-      // Only increment count for actual new bot messages with content
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.role === "bot" && lastMessage.content.trim() && !loading) {
-        setUnreadCount(prev => prev + 1);
+    if (atBottom !== isAtBottom) {
+      setIsAtBottom(atBottom);
+      if (atBottom) {
+        setUnreadCount(0);
       }
     }
-  }, [messages, isAtBottom, loading, scrollToBottom]);
+  };
+
+  // Scroll to bottom of chat
+  const scrollToBottom = (force = false) => {
+    if (chatEndRef.current && (isAtBottom || force)) {
+      chatEndRef.current.scrollIntoView({ 
+        behavior: force ? 'auto' : 'smooth',
+        block: 'end'
+      });
+    }
+  };
+
+  // Auto-scroll when new messages arrive
+  useEffect(() => {
+    if (isAtBottom) {
+      scrollToBottom();
+    } else {
+      // Increment unread count if not at bottom
+      setUnreadCount(prev => prev + 1);
+    }
+  }, [messages]);
 
   // Auto-resize textarea
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.style.height = "auto";
-      inputRef.current.style.height = inputRef.current.scrollHeight + "px";
+      inputRef.current.style.height = 'auto';
+      const newHeight = Math.min(inputRef.current.scrollHeight, 120);
+      inputRef.current.style.height = `${newHeight}px`;
     }
   }, [userMessage]);
 
+  // Handle sending messages
   const handleSend = async () => {
     if (!userMessage.trim() || loading) return;
-
-    const currentMessage = userMessage.trim();
-    setUserMessage("");
+    
     setError("");
-
-    // Add user message
-    const userMsg: Message = {
-      role: "user",
-      content: currentMessage,
-      timestamp: Date.now(),
-    };
-
-    setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
-    // Add empty bot message that will be filled
-    const botMsg: Message = {
-      role: "bot",
-      content: "",
+    const newMessage: Message = {
+      role: "user",
+      content: userMessage,
       timestamp: Date.now(),
     };
 
-    setMessages(prev => [...prev, botMsg]);
-
-    // Scroll to bottom and increment unread count if not at bottom
-    if (!checkIfAtBottom()) {
-      setUnreadCount(prev => prev + 1);
-    }
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+    setUserMessage("");
 
     try {
-      const conversationMessages = [
-        ...messages.map(msg => ({ role: msg.role === "bot" ? "assistant" : "user", content: msg.content })),
-        { role: "user", content: currentMessage }
-      ];
-
-      const requestBody = {
-        messages: conversationMessages,
-        model: model,
-        api_key: apiKey,
-        use_rag: hasDocuments
-      };
-
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          messages: updatedMessages,
+          model,
+          api_key: apiKey,
+          use_rag: hasDocuments, // Always use RAG when documents are available
+        }),
       });
 
       if (!response.ok) {
@@ -412,56 +501,56 @@ export default function Home() {
       }
 
       const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
       if (!reader) {
-        throw new Error("Failed to read response");
+        throw new Error("No response body");
       }
 
-      let fullResponse = "";
+      let botResponse = "";
+      const botMessage: Message = {
+        role: "bot",
+        content: "",
+        timestamp: Date.now(),
+      };
+
+      setMessages([...updatedMessages, botMessage]);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        fullResponse += chunk;
+        const chunk = new TextDecoder().decode(value);
+        const lines = chunk.split('\n');
 
-        // Update the last message with the current response
-        setMessages(prev => {
-          const newMessages = [...prev];
-          if (newMessages.length > 0) {
-            newMessages[newMessages.length - 1] = {
-              ...newMessages[newMessages.length - 1],
-              content: fullResponse
-            };
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') break;
+            
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.choices?.[0]?.delta?.content) {
+                botResponse += parsed.choices[0].delta.content;
+                setMessages(prev => [
+                  ...prev.slice(0, -1),
+                  { ...botMessage, content: botResponse }
+                ]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
           }
-          return newMessages;
-        });
+        }
       }
-
-      // Scroll to bottom after response
-      setTimeout(() => scrollToBottom(), 100);
-
     } catch (error) {
       console.error("Error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-      setError(
-        errorMessage ||
-          "Something went wrong! Maybe the AI is on a coffee break? ☕️"
-      );
-      setMessages(prev => {
-        const newMessages = [...prev];
-        if (newMessages[newMessages.length - 1]?.role === "bot" && !newMessages[newMessages.length - 1]?.content) {
-          newMessages.pop();
-        }
-        return newMessages;
-      });
+      setError("Oops! Something went wrong. Please try again.");
+      setMessages(updatedMessages);
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle Enter key in textarea
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -469,7 +558,7 @@ export default function Home() {
     }
   };
 
-  // Add clear chat function
+  // Clear chat messages
   const clearChat = () => {
     setMessages([
       { role: "bot", content: "Hey! I'm your document assistant. Upload some PDFs and I'll help you with questions about them! 📄", timestamp: Date.now() },
@@ -482,6 +571,17 @@ export default function Home() {
   return (
     <div className={`${styles.chatPage} ${styles[`theme-${theme}`]}`}>
       <div className={styles.leftPanel}>
+        <div className={styles.userInfo}>
+          <span className={styles.apiKeyStatus}>🔑 Connected</span>
+          <button 
+            className={styles.changeApiKeyButton}
+            onClick={onBack}
+            title="Change API Key"
+          >
+            Change Key
+          </button>
+        </div>
+
         <form
           className={styles.inputForm}
           onSubmit={(e) => {
@@ -490,18 +590,6 @@ export default function Home() {
           }}
           autoComplete="off"
         >
-          <label className={styles.label}>
-            API 🔑
-            <input
-              type="password"
-              className={styles.input}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="sk-..."
-              required
-            />
-          </label>
-          
           <label className={styles.label}>
             ✨ What&apos;s your vibe?
             <select
@@ -729,5 +817,50 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  const [apiKey, setApiKey] = useState("");
+  const [error, setError] = useState("");
+  const [theme, setTheme] = useState<Theme>('dark-ice');
+  const [isApiKeySet, setIsApiKeySet] = useState(false);
+
+  const handleApiKeySubmit = (key: string) => {
+    // Basic validation
+    if (!key.startsWith('sk-') || key.length < 20) {
+      setError("Please enter a valid OpenAI API key (starts with 'sk-')");
+      return;
+    }
+    
+    setApiKey(key);
+    setIsApiKeySet(true);
+    setError("");
+  };
+
+  const handleBack = () => {
+    setIsApiKeySet(false);
+    setApiKey("");
+    setError("");
+  };
+
+  if (!isApiKeySet) {
+    return (
+      <ApiKeyScreen
+        onApiKeySubmit={handleApiKeySubmit}
+        error={error}
+        theme={theme}
+        setTheme={setTheme}
+      />
+    );
+  }
+
+  return (
+    <ChatInterface
+      apiKey={apiKey}
+      onBack={handleBack}
+      theme={theme}
+      setTheme={setTheme}
+    />
   );
 }

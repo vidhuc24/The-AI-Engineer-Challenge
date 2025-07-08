@@ -502,9 +502,9 @@ function ChatInterface({
         },
         body: JSON.stringify({
           messages: updatedMessages.map(msg => ({
-            role: msg.role,
+            role: msg.role === "bot" ? "assistant" : msg.role,
             content: msg.content
-          })), // Strip timestamp field for backend compatibility
+          })), // Strip timestamp field and convert 'bot' to 'assistant' for OpenAI API
           model,
           api_key: apiKey,
           use_rag: hasDocuments, // Always use RAG when documents are available

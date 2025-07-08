@@ -33,6 +33,7 @@ app.add_middleware(
 vector_db = None
 has_documents = False
 uploaded_docs = []  # Track uploaded documents
+all_document_chunks = []  # Store all document chunks for rebuilding vector DB
 
 # Define the data model for chat requests using Pydantic
 # This ensures incoming request data is properly validated
@@ -186,13 +187,18 @@ async def upload_document(
             split_docs = text_splitter.split_texts(documents)
             
             # Initialize vector database with API key
-            global vector_db, has_documents
+            global vector_db, has_documents, all_document_chunks
+            
+            # Add new chunks to accumulated chunks
+            all_document_chunks.extend(split_docs)
+            
+            # Rebuild vector database with all accumulated chunks
             vector_db = VectorDatabase(
                 embedding_model=EmbeddingModel(api_key=api_key)
             )
             
-            # Build vector database from documents
-            vector_db = await vector_db.abuild_from_list(split_docs)
+            # Build vector database from all document chunks
+            vector_db = await vector_db.abuild_from_list(all_document_chunks)
             
             # Update global state
             has_documents = True
@@ -202,7 +208,7 @@ async def upload_document(
                 "timestamp": os.path.getmtime(temp_file_path)
             })
             
-            return {"message": f"Document {file.filename} uploaded successfully"}
+            return {"message": f"Document {file.filename} uploaded successfully. Total chunks: {len(all_document_chunks)}"}
             
         finally:
             # Clean up temporary file
@@ -221,6 +227,17 @@ async def get_document_status():
         "uploaded_documents": uploaded_docs
     }
 
+# New endpoint to remove individual document
+@app.delete("/api/documents/{filename}")
+async def remove_document(filename: str):
+    """Remove a specific document from the uploaded list."""
+    global uploaded_docs
+    
+    # Find and remove the document
+    uploaded_docs = [doc for doc in uploaded_docs if doc['filename'] != filename]
+    
+    return {"message": f"Document {filename} removed from list"}
+
 # New endpoint to get list of uploaded documents
 @app.get("/api/documents/list")
 async def get_uploaded_documents():
@@ -232,10 +249,11 @@ async def get_uploaded_documents():
 # New endpoint to clear documents
 @app.post("/api/documents/clear")
 async def clear_documents():
-    global has_documents, vector_db, uploaded_docs
+    global has_documents, vector_db, uploaded_docs, all_document_chunks
     vector_db = None  # Reset vector database
     has_documents = False
     uploaded_docs = []  # Clear uploaded documents list
+    all_document_chunks = [] # Clear accumulated chunks
     return {"message": "Documents cleared successfully"}
 
 # Define a health check endpoint to verify API status

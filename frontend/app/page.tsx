@@ -163,6 +163,7 @@ export default function Home() {
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [documentCount, setDocumentCount] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState("");
+  const [uploadedDocuments, setUploadedDocuments] = useState<Array<{filename: string, timestamp: number}>>([]);
   
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -186,10 +187,31 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         setHasDocuments(data.has_documents);
-        setDocumentCount(data.document_count || 0);
+        setDocumentCount(data.document_count);
+        setUploadedDocuments(data.uploaded_documents || []);
       }
     } catch (error) {
       console.error('Error checking document status:', error);
+    }
+  };
+
+  // Remove individual document
+  const removeDocument = async (filename: string) => {
+    try {
+      const response = await fetch(`/api/documents/${encodeURIComponent(filename)}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        setUploadSuccess(`Document ${filename} removed`);
+        setTimeout(() => setUploadSuccess(""), 3000);
+        checkDocumentStatus(); // Refresh document list
+      } else {
+        throw new Error(`Failed to remove document: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error removing document:', error);
+      setError(`Failed to remove document: ${error}`);
     }
   };
 
@@ -552,6 +574,26 @@ export default function Home() {
                 )}
               </div>
             </div>
+
+            {/* Uploaded Documents List */}
+            {uploadedDocuments.length > 0 && (
+              <div className={styles.documentsList}>
+                <h4 className={styles.documentsListTitle}>Uploaded Documents:</h4>
+                {uploadedDocuments.map((doc, index) => (
+                  <div key={index} className={styles.documentItem}>
+                    <span className={styles.documentName}>📄 {doc.filename}</span>
+                    <button
+                      type="button"
+                      className={styles.removeDocButton}
+                      onClick={() => removeDocument(doc.filename)}
+                      title={`Remove ${doc.filename}`}
+                    >
+                      ❌
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Clear Documents Button */}
             {hasDocuments && (

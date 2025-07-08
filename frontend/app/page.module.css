@@ -1405,6 +1405,79 @@ a.secondary {
   font-weight: 600;
 }
 
+/* Documents List Styles */
+.documentsList {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.documentsListTitle {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+.documentItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s;
+}
+
+.documentItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.documentItem:last-child {
+  margin-bottom: 0;
+}
+
+.documentName {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removeDocButton {
+  background: rgba(220, 38, 38, 0.8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  opacity: 0.7;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.removeDocButton:hover {
+  background: rgba(220, 38, 38, 1);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.removeDocButton:active {
+  transform: scale(0.95);
+}
+
 /* Light Snow Theme Overrides */
 .theme-light-snow .ragSection {
   background: rgba(0, 0, 0, 0.02);
@@ -1477,8 +1550,32 @@ a.secondary {
 }
 
 .theme-light-snow .ragIndicator {
-  background: rgba(22, 133, 248, 0.15);
-  color: #1d4ed8;
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+}
+
+/* Light Snow Theme - Documents List */
+.theme-light-snow .documentsList {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-light-snow .documentsListTitle {
+  color: #1F2937;
+}
+
+.theme-light-snow .documentItem {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme-light-snow .documentItem:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.theme-light-snow .documentName {
+  color: #374151;
 }
 
 /* Neon Ice Theme Overrides */
@@ -1515,34 +1612,6 @@ a.secondary {
   color: #E8F4FD;
 }
 
-.theme-neon-ice .toggleLabel {
-  background: rgba(22, 133, 248, 0.02);
-  border: 1px solid rgba(22, 133, 248, 0.2);
-}
-
-.theme-neon-ice .toggleLabel:hover {
-  background: rgba(22, 133, 248, 0.05);
-  border-color: rgba(22, 133, 248, 0.3);
-  box-shadow: 0 0 15px rgba(22, 133, 248, 0.1);
-}
-
-.theme-neon-ice .toggleSlider {
-  background: rgba(22, 133, 248, 0.3);
-}
-
-.theme-neon-ice .toggleSlider::before {
-  background: #E8F4FD;
-}
-
-.theme-neon-ice .toggleInput:checked + .toggleSlider {
-  background: #1685f8;
-  box-shadow: 0 0 15px rgba(22, 133, 248, 0.5);
-}
-
-.theme-neon-ice .toggleText {
-  color: #E8F4FD;
-}
-
 .theme-neon-ice .clearDocsButton {
   background: rgba(22, 133, 248, 0.1);
   color: #E8F4FD;
@@ -1562,9 +1631,33 @@ a.secondary {
 }
 
 .theme-neon-ice .ragIndicator {
-  background: rgba(22, 133, 248, 0.3);
-  color: #1685f8;
-  box-shadow: 0 0 5px rgba(22, 133, 248, 0.3);
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+}
+
+/* Neon Ice Theme - Documents List */
+.theme-neon-ice .documentsList {
+  background: rgba(22, 133, 248, 0.02);
+  border: 1px solid rgba(22, 133, 248, 0.2);
+}
+
+.theme-neon-ice .documentsListTitle {
+  color: #E8F4FD;
+}
+
+.theme-neon-ice .documentItem {
+  background: rgba(22, 133, 248, 0.02);
+  border: 1px solid rgba(22, 133, 248, 0.15);
+}
+
+.theme-neon-ice .documentItem:hover {
+  background: rgba(22, 133, 248, 0.05);
+  border-color: rgba(22, 133, 248, 0.3);
+  box-shadow: 0 0 10px rgba(22, 133, 248, 0.1);
+}
+
+.theme-neon-ice .documentName {
+  color: #E8F4FD;
 }
 
 /* Responsive Design for RAG Components */

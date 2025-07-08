@@ -40,7 +40,7 @@ all_document_chunks = []  # Store all document chunks for rebuilding vector DB
 # This ensures incoming request data is properly validated
 class ChatRequest(BaseModel):
     messages: List[Dict[str, str]]  # Full conversation history
-    model: Optional[str] = "gpt-4.1-mini"  # Optional model selection with default
+    model: Optional[str] = "gpt-4o-mini"  # Optional model selection with default
     api_key: str          # OpenAI API key for authentication
     use_rag: Optional[bool] = False  # Whether to use RAG enhancement
 
@@ -54,6 +54,12 @@ def initialize_vector_db():
 # Define the main chat endpoint that handles POST requests
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
+    print(f"DEBUG: Received chat request:")
+    print(f"  Messages count: {len(request.messages)}")
+    print(f"  Model: {request.model}")
+    print(f"  API key starts with: {request.api_key[:10]}...")
+    print(f"  Use RAG: {request.use_rag}")
+    
     try:
         # Initialize OpenAI client with the provided API key
         client = OpenAI(api_key=request.api_key)

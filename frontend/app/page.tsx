@@ -279,7 +279,7 @@ function ChatInterface({
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [model, setModel] = useState("gpt-4.1-mini");
+  const [model, setModel] = useState("gpt-4o-mini");
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   
@@ -616,8 +616,8 @@ function ChatInterface({
               value={model}
               onChange={(e) => setModel(e.target.value)}
             >
-              <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-              <option value="gpt-4.1-nano">gpt-4.1-nano</option>
+              <option value="gpt-4o-mini">gpt-4o-mini</option>
+              <option value="gpt-4o">gpt-4o</option>
             </select>
           </label>
 

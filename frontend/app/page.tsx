@@ -169,80 +169,92 @@ function ApiKeyScreen({ onApiKeySubmit, error, theme, setTheme }: {
   return (
     <div className={`${styles.apiKeyScreen} ${styles[`theme-${theme}`]}`}>
       <div className={styles.apiKeyContainer}>
-        <div className={styles.logoContainer}>
-          <img 
-            src="/my_logo.png" 
-            alt="ChillGPT Logo" 
-            className={styles.logo}
-          />
-          <h1 className={styles.logoTitle}>ChillGPT</h1>
-          <p className={styles.subtitle}>Your AI-powered document assistant</p>
+        {/* Top Logo Section */}
+        <div className={styles.logoSection}>
+          <div className={styles.logoContainer}>
+            <img 
+              src="/my_logo.png" 
+              alt="ChillGPT Logo" 
+              className={styles.logo}
+            />
+            <h1 className={styles.logoTitle}>ChillGPT</h1>
+            <p className={styles.subtitle}>Your AI-powered document assistant</p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.apiKeyForm}>
-          <div className={styles.apiKeySection}>
-            <label className={styles.apiKeyLabel}>
-              <span className={styles.apiKeyTitle}>🔑 Enter your OpenAI API Key</span>
-              <input
-                type="password"
-                className={styles.apiKeyInput}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-..."
-                required
-                disabled={isValidating}
-              />
-              <span className={styles.apiKeyHint}>
-                Your API key is stored locally and never shared
-              </span>
-            </label>
-          </div>
+        {/* Main Content Area */}
+        <div className={styles.mainContent}>
+          {/* Left Side - API Key Form */}
+          <div className={styles.leftSide}>
+            <form onSubmit={handleSubmit} className={styles.apiKeyForm}>
+              <div className={styles.apiKeySection}>
+                <label className={styles.apiKeyLabel}>
+                  <span className={styles.apiKeyTitle}>🔑 Enter your OpenAI API Key</span>
+                  <input
+                    type="password"
+                    className={styles.apiKeyInput}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="sk-..."
+                    required
+                    disabled={isValidating}
+                  />
+                  <span className={styles.apiKeyHint}>
+                    Your API key is stored locally and never shared
+                  </span>
+                </label>
+              </div>
 
-          <div className={styles.themeSection}>
-            <label className={styles.themeLabel}>
-              ✨ Choose your vibe
-              <select
-                className={styles.themeSelect}
-                value={theme}
-                onChange={(e) => setTheme(e.target.value as Theme)}
-                disabled={isValidating}
+              <div className={styles.themeSection}>
+                <label className={styles.themeLabel}>
+                  ✨ Choose your vibe
+                  <select
+                    className={styles.themeSelect}
+                    value={theme}
+                    onChange={(e) => setTheme(e.target.value as Theme)}
+                    disabled={isValidating}
+                  >
+                    <option value="dark-ice">❄️ Dark Ice</option>
+                    <option value="light-snow">☁️ Light Snow</option>
+                    <option value="neon-ice">⚡ Neon Ice</option>
+                  </select>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className={styles.continueButton}
+                disabled={!apiKey.trim() || isValidating}
               >
-                <option value="dark-ice">❄️ Dark Ice</option>
-                <option value="light-snow">☁️ Light Snow</option>
-                <option value="neon-ice">⚡ Neon Ice</option>
-              </select>
-            </label>
+                {isValidating ? (
+                  <>
+                    <span className={styles.spinner}>⏳</span>
+                    Connecting...
+                  </>
+                ) : (
+                  <>
+                    Continue to Chat
+                    <span className={styles.arrow}>→</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <FunnyError message={error} />
           </div>
 
-          <button
-            type="submit"
-            className={styles.continueButton}
-            disabled={!apiKey.trim() || isValidating}
-          >
-            {isValidating ? (
-              <>
-                <span className={styles.spinner}>⏳</span>
-                Connecting...
-              </>
-            ) : (
-              <>
-                Continue to Chat
-                <span className={styles.arrow}>→</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        <FunnyError message={error} />
-
-        <div className={styles.featurePreview}>
-          <h3 className={styles.featureTitle}>What you can do:</h3>
-          <ul className={styles.featureList}>
-            <li>📄 Upload PDF documents</li>
-            <li>🧠 Ask questions about your documents</li>
-            <li>💬 Get intelligent, context-aware responses</li>
-            <li>🎨 Enjoy beautiful markdown formatting</li>
-          </ul>
+          {/* Right Side - Feature Preview */}
+          <div className={styles.rightSide}>
+            <div className={styles.featurePreview}>
+              <h3 className={styles.featureTitle}>What you can do:</h3>
+              <ul className={styles.featureList}>
+                <li>📄 Upload PDF documents</li>
+                <li>🧠 Ask questions about your documents</li>
+                <li>💬 Get intelligent, context-aware responses</li>
+                <li>🎨 Enjoy beautiful markdown formatting</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>

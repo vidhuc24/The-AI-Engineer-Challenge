@@ -90,29 +90,79 @@ I can only answer questions based on the content of these uploaded documents. Pl
                 enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
             else:
                 # For regular queries, search for relevant context with similarity threshold
-                search_results = vector_db.search_by_text(user_message, k=3, return_as_text=False)
+                search_results = vector_db.search_by_text(user_message, k=5, return_as_text=False)
                 
-                # Set similarity threshold - only use results above this threshold
-                SIMILARITY_THRESHOLD = 0.7
-                relevant_contexts = []
+                # Log similarity scores for debugging
+                print(f"Query: {user_message}")
+                print(f"Similarity scores: {[(score, text[:50] + '...') for text, score in search_results]}")
+                
+                # Multi-tier similarity thresholds for different confidence levels
+                HIGH_CONFIDENCE_THRESHOLD = 0.85  # Very relevant content
+                MEDIUM_CONFIDENCE_THRESHOLD = 0.70  # Moderately relevant content
+                LOW_CONFIDENCE_THRESHOLD = 0.55   # Potentially relevant content
+                
+                high_confidence_contexts = []
+                medium_confidence_contexts = []
+                low_confidence_contexts = []
                 
                 for text, similarity_score in search_results:
-                    if similarity_score >= SIMILARITY_THRESHOLD:
-                        relevant_contexts.append(text)
+                    if similarity_score >= HIGH_CONFIDENCE_THRESHOLD:
+                        high_confidence_contexts.append((text, similarity_score))
+                    elif similarity_score >= MEDIUM_CONFIDENCE_THRESHOLD:
+                        medium_confidence_contexts.append((text, similarity_score))
+                    elif similarity_score >= LOW_CONFIDENCE_THRESHOLD:
+                        low_confidence_contexts.append((text, similarity_score))
+                
+                # Determine response strategy based on context quality
+                if high_confidence_contexts:
+                    # High confidence: Use only the best contexts
+                    relevant_contexts = [text for text, score in high_confidence_contexts[:3]]
+                    confidence_level = "high"
+                elif medium_confidence_contexts:
+                    # Medium confidence: Use medium contexts but indicate uncertainty
+                    relevant_contexts = [text for text, score in medium_confidence_contexts[:2]]
+                    confidence_level = "medium"
+                elif low_confidence_contexts:
+                    # Low confidence: Use cautious language
+                    relevant_contexts = [text for text, score in low_confidence_contexts[:1]]
+                    confidence_level = "low"
+                else:
+                    # No relevant contexts found
+                    relevant_contexts = []
+                    confidence_level = "none"
                 
                 if relevant_contexts:
                     # Build context string from relevant documents
                     context_str = "\n\n".join([f"Context {i+1}: {ctx}" for i, ctx in enumerate(relevant_contexts)])
                     
-                    # Strict document-only prompt
-                    enhanced_message = f"""You are a document-only assistant. You can ONLY answer questions based on the following context from uploaded documents. If the information is not in the context below, you MUST respond with "I don't know - this information is not available in the uploaded documents. Please ask about topics covered in the documents."
+                    # Adjust prompt based on confidence level
+                    if confidence_level == "high":
+                        enhanced_message = f"""You are a document-only assistant. Answer the question based on the following highly relevant context from uploaded documents. You can be confident in your response.
 
 Context from uploaded documents:
 {context_str}
 
 Question: {user_message}
 
-Instructions: Answer ONLY based on the context above. If the answer is not in the context, respond with "I don't know - this information is not available in the uploaded documents."""
+Instructions: Answer based on the context above. If any part of the answer is not in the context, clearly state what information is missing."""
+                    elif confidence_level == "medium":
+                        enhanced_message = f"""You are a document-only assistant. Answer the question based on the following moderately relevant context from uploaded documents. Be somewhat cautious in your response.
+
+Context from uploaded documents:
+{context_str}
+
+Question: {user_message}
+
+Instructions: Answer based on the context above, but indicate if the information seems only partially relevant or if you're uncertain about any aspects."""
+                    else:  # low confidence
+                        enhanced_message = f"""You are a document-only assistant. I found some potentially relevant context from uploaded documents, but the relevance is uncertain.
+
+Context from uploaded documents:
+{context_str}
+
+Question: {user_message}
+
+Instructions: Based on the context above, provide what information you can, but clearly indicate that the relevance is uncertain and suggest the user rephrase their question for better results."""
                     
                     # Replace the last message with the enhanced version
                     enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
@@ -120,7 +170,14 @@ Instructions: Answer ONLY based on the context above. If the answer is not in th
                     # No relevant context found - strict "I don't know" response
                     enhanced_message = f"""I don't know - this information is not available in the uploaded documents. 
 
-I can only answer questions based on the content of the {len(uploaded_docs)} document(s) you've uploaded. Please try rephrasing your question to focus on topics covered in these documents, or ask about specific sections, concepts, or details mentioned in the files."""
+I searched through {len(all_document_chunks)} document chunks from {len(uploaded_docs)} document(s), but couldn't find relevant information to answer your question.
+
+Please try:
+- Rephrasing your question with different keywords
+- Asking about specific topics mentioned in the documents
+- Being more specific about what you're looking for
+
+Available documents: {', '.join([doc['filename'] for doc in uploaded_docs])}"""
                     
                     enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
         else:
@@ -226,6 +283,40 @@ async def get_document_status():
         "document_count": len(vector_db.vectors) if has_documents and vector_db else 0,
         "uploaded_documents": uploaded_docs
     }
+
+# Debug endpoint to test similarity scores
+@app.post("/api/debug/similarity")
+async def debug_similarity(request: dict):
+    """Debug endpoint to test similarity scores for a query."""
+    if not has_documents or not vector_db:
+        raise HTTPException(status_code=400, detail="No documents available")
+    
+    query = request.get("query", "")
+    if not query:
+        raise HTTPException(status_code=400, detail="Query is required")
+    
+    try:
+        search_results = vector_db.search_by_text(query, k=10, return_as_text=False)
+        
+        return {
+            "query": query,
+            "total_chunks": len(all_document_chunks),
+            "results": [
+                {
+                    "similarity_score": float(score),
+                    "text_preview": text[:100] + "..." if len(text) > 100 else text,
+                    "confidence_level": (
+                        "high" if score >= 0.85 else
+                        "medium" if score >= 0.70 else
+                        "low" if score >= 0.55 else
+                        "very_low"
+                    )
+                }
+                for text, score in search_results
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
 
 # New endpoint to remove individual document
 @app.delete("/api/documents/{filename}")

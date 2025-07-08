@@ -32,6 +32,7 @@ app.add_middleware(
 # Global vector database instance - Initialize without embedding model to avoid API key requirement
 vector_db = None
 has_documents = False
+uploaded_docs = []  # Track uploaded documents
 
 # Define the data model for chat requests using Pydantic
 # This ensures incoming request data is properly validated
@@ -129,14 +130,15 @@ async def upload_document(
         
         try:
             # Load PDF
-            loader = PDFLoader()
-            documents = loader.load_documents([temp_file_path])
+            loader = PDFLoader(temp_file_path)
+            documents = loader.load_documents()
             
             # Split text
             text_splitter = CharacterTextSplitter()
             split_docs = text_splitter.split_texts(documents)
             
             # Initialize vector database with API key
+            global vector_db, has_documents
             vector_db = VectorDatabase(
                 embedding_model=EmbeddingModel(api_key=api_key)
             )
@@ -144,8 +146,8 @@ async def upload_document(
             # Add documents to vector database
             vector_db.add_documents(split_docs)
             
-            # Update global vector database
-            global_vector_db = vector_db
+            # Update global state
+            has_documents = True
             
             uploaded_docs.append({
                 "filename": file.filename,

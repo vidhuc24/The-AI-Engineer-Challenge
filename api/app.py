@@ -143,8 +143,8 @@ async def upload_document(
                 embedding_model=EmbeddingModel(api_key=api_key)
             )
             
-            # Add documents to vector database
-            vector_db.add_documents(split_docs)
+            # Build vector database from documents
+            vector_db = await vector_db.abuild_from_list(split_docs)
             
             # Update global state
             has_documents = True

@@ -1196,3 +1196,406 @@ a.secondary {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* RAG Section Styles */
+.ragSection {
+  margin: 20px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.ragSection:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.documentStatus {
+  margin: 12px 0;
+  padding: 8px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.statusIndicator {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.fileUploadArea {
+  margin: 12px 0;
+  padding: 24px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fileUploadArea:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.fileUploadArea:active {
+  transform: translateY(0);
+}
+
+.uploadContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.uploadIcon {
+  font-size: 1.5em;
+  margin-bottom: 4px;
+}
+
+.uploadingIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  font-size: 1.2em;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Toggle Switch Styles */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toggleLabel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.toggleInput {
+  display: none;
+}
+
+.toggleSlider {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 13px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.toggleSlider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  top: 3px;
+  left: 3px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggleInput:checked + .toggleSlider {
+  background: #1685f8;
+  box-shadow: 0 0 10px rgba(22, 133, 248, 0.3);
+}
+
+.toggleInput:checked + .toggleSlider::before {
+  transform: translateX(24px);
+}
+
+.toggleInput:disabled + .toggleSlider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleText {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Clear Documents Button */
+.clearDocsButton {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+}
+
+.clearDocsButton:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.clearDocsButton:active {
+  transform: translateY(0);
+}
+
+/* Success Message */
+.successMessage {
+  background: rgba(0, 255, 0, 0.1);
+  color: #90EE90;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+/* RAG Indicator in Input Area */
+.ragIndicator {
+  margin-left: 8px;
+  padding: 4px 8px;
+  background: rgba(22, 133, 248, 0.2);
+  color: #1685f8;
+  border-radius: 6px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+/* Light Snow Theme Overrides */
+.theme-light-snow .ragSection {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-light-snow .ragSection:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.theme-light-snow .statusIndicator {
+  color: #374151;
+}
+
+.theme-light-snow .fileUploadArea {
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.theme-light-snow .fileUploadArea:hover {
+  border-color: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.theme-light-snow .uploadContent {
+  color: #374151;
+}
+
+.theme-light-snow .uploadingIndicator {
+  color: #2C3136;
+}
+
+.theme-light-snow .toggleLabel {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-light-snow .toggleLabel:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.theme-light-snow .toggleSlider {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.theme-light-snow .toggleSlider::before {
+  background: #2C3136;
+}
+
+.theme-light-snow .toggleText {
+  color: #374151;
+}
+
+.theme-light-snow .clearDocsButton {
+  background: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+.theme-light-snow .clearDocsButton:hover {
+  background: rgba(255, 0, 0, 0.15);
+  color: #dc2626;
+}
+
+.theme-light-snow .successMessage {
+  background: rgba(0, 200, 0, 0.1);
+  color: #059669;
+  border-color: rgba(0, 200, 0, 0.3);
+}
+
+.theme-light-snow .ragIndicator {
+  background: rgba(22, 133, 248, 0.15);
+  color: #1d4ed8;
+}
+
+/* Neon Ice Theme Overrides */
+.theme-neon-ice .ragSection {
+  background: rgba(22, 133, 248, 0.02);
+  border: 1px solid rgba(22, 133, 248, 0.2);
+}
+
+.theme-neon-ice .ragSection:hover {
+  background: rgba(22, 133, 248, 0.05);
+  border-color: rgba(22, 133, 248, 0.3);
+}
+
+.theme-neon-ice .statusIndicator {
+  color: #E8F4FD;
+}
+
+.theme-neon-ice .fileUploadArea {
+  border-color: rgba(22, 133, 248, 0.4);
+  background: rgba(22, 133, 248, 0.02);
+}
+
+.theme-neon-ice .fileUploadArea:hover {
+  border-color: rgba(22, 133, 248, 0.6);
+  background: rgba(22, 133, 248, 0.05);
+  box-shadow: 0 0 20px rgba(22, 133, 248, 0.2);
+}
+
+.theme-neon-ice .uploadContent {
+  color: #E8F4FD;
+}
+
+.theme-neon-ice .uploadingIndicator {
+  color: #E8F4FD;
+}
+
+.theme-neon-ice .toggleLabel {
+  background: rgba(22, 133, 248, 0.02);
+  border: 1px solid rgba(22, 133, 248, 0.2);
+}
+
+.theme-neon-ice .toggleLabel:hover {
+  background: rgba(22, 133, 248, 0.05);
+  border-color: rgba(22, 133, 248, 0.3);
+  box-shadow: 0 0 15px rgba(22, 133, 248, 0.1);
+}
+
+.theme-neon-ice .toggleSlider {
+  background: rgba(22, 133, 248, 0.3);
+}
+
+.theme-neon-ice .toggleSlider::before {
+  background: #E8F4FD;
+}
+
+.theme-neon-ice .toggleInput:checked + .toggleSlider {
+  background: #1685f8;
+  box-shadow: 0 0 15px rgba(22, 133, 248, 0.5);
+}
+
+.theme-neon-ice .toggleText {
+  color: #E8F4FD;
+}
+
+.theme-neon-ice .clearDocsButton {
+  background: rgba(22, 133, 248, 0.1);
+  color: #E8F4FD;
+}
+
+.theme-neon-ice .clearDocsButton:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff6b6b;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+}
+
+.theme-neon-ice .successMessage {
+  background: rgba(0, 255, 0, 0.1);
+  color: #4ade80;
+  border-color: rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.theme-neon-ice .ragIndicator {
+  background: rgba(22, 133, 248, 0.3);
+  color: #1685f8;
+  box-shadow: 0 0 5px rgba(22, 133, 248, 0.3);
+}
+
+/* Responsive Design for RAG Components */
+@media (max-width: 768px) {
+  .ragSection {
+    margin: 16px 0;
+    padding: 12px;
+  }
+  
+  .fileUploadArea {
+    padding: 16px;
+    min-height: 60px;
+  }
+  
+  .toggleLabel {
+    padding: 8px;
+  }
+  
+  .toggleSlider {
+    width: 40px;
+    height: 22px;
+  }
+  
+  .toggleSlider::before {
+    width: 16px;
+    height: 16px;
+    top: 3px;
+    left: 3px;
+  }
+  
+  .toggleInput:checked + .toggleSlider::before {
+    transform: translateX(18px);
+  }
+}

@@ -161,7 +161,7 @@ export default function Home() {
   const [developerMessage, setDeveloperMessage] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", content: "Hey, what's up?", timestamp: Date.now() },
+    { role: "bot", content: "Hey, what's up? I can now help you with your documents too! 📄", timestamp: Date.now() },
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -170,14 +170,126 @@ export default function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [theme, setTheme] = useState<Theme>('dark-ice');
   const [selectedPrompt, setSelectedPrompt] = useState('default');
+  
+  // RAG-related state
+  const [ragEnabled, setRagEnabled] = useState(false);
+  const [hasDocuments, setHasDocuments] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [documentCount, setDocumentCount] = useState(0);
+  const [uploadSuccess, setUploadSuccess] = useState("");
+  
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Character and token counts
   const charCount = userMessage.length;
   const tokenCount = estimateTokens(userMessage);
   const isLongMessage = charCount > 1000;
+
+  // Check document status on component mount
+  useEffect(() => {
+    checkDocumentStatus();
+  }, []);
+
+  // Check document status from backend
+  const checkDocumentStatus = async () => {
+    try {
+      const response = await fetch('/api/documents/status');
+      if (response.ok) {
+        const data = await response.json();
+        setHasDocuments(data.has_documents);
+        setDocumentCount(data.document_count || 0);
+      }
+    } catch (error) {
+      console.error('Error checking document status:', error);
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.includes('pdf')) {
+      setError("Only PDF files are supported for now! 📄");
+      return;
+    }
+
+    setIsUploadingFile(true);
+    setError("");
+    setUploadSuccess("");
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload-document', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setUploadSuccess(`✅ ${data.message} (${data.chunks} chunks processed)`);
+      setHasDocuments(true);
+      setDocumentCount(data.chunks);
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setUploadSuccess(""), 5000);
+      
+    } catch (error) {
+      console.error('File upload error:', error);
+      setError("Failed to upload document. Please try again! 🔄");
+    } finally {
+      setIsUploadingFile(false);
+    }
+  };
+
+  // Handle drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  // Handle file input change
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  // Clear documents
+  const clearDocuments = async () => {
+    try {
+      const response = await fetch('/api/documents/clear', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        setHasDocuments(false);
+        setDocumentCount(0);
+        setRagEnabled(false);
+        setUploadSuccess("📄 Documents cleared successfully!");
+        setTimeout(() => setUploadSuccess(""), 3000);
+      }
+    } catch (error) {
+      console.error('Error clearing documents:', error);
+      setError("Failed to clear documents! 🔄");
+    }
+  };
 
   // Check if user is at bottom of chat
   const checkIfAtBottom = () => {
@@ -234,68 +346,96 @@ export default function Home() {
   };
 
   const handleSend = async () => {
-    setError("");
-    if (!userMessage.trim()) return;
-    if (!apiKey) {
-      setError("You forgot your API key! (Don't worry, I won't tell anyone.)");
-      return;
-    }
-    
-    const currentUserMessage = userMessage;
+    if (!userMessage.trim() || loading) return;
+
+    const currentMessage = userMessage.trim();
     setUserMessage("");
+    setError("");
+
+    // Add user message
+    const userMsg: Message = {
+      role: "user",
+      content: currentMessage,
+      timestamp: Date.now(),
+    };
+
+    setMessages(prev => [...prev, userMsg]);
     setLoading(true);
-    
-    const newUserMessage: Message = { role: "user", content: currentUserMessage, timestamp: Date.now() };
-    const updatedMessages = [...messages, newUserMessage];
-    setMessages(updatedMessages);
-    
+
+    // Add empty bot message that will be filled
+    const botMsg: Message = {
+      role: "bot",
+      content: "",
+      timestamp: Date.now(),
+    };
+
+    setMessages(prev => [...prev, botMsg]);
+
+    // Scroll to bottom and increment unread count if not at bottom
+    if (!checkIfAtBottom()) {
+      setUnreadCount(prev => prev + 1);
+    }
+
     try {
-      const conversationHistory = updatedMessages.map(msg => ({
-        role: msg.role === "bot" ? "assistant" : msg.role,
-        content: msg.content
-      }));
-      
-      const messagesToSend = [];
-      if (developerMessage.trim()) {
-        messagesToSend.push({ role: "system", content: developerMessage });
-      }
-      messagesToSend.push(...conversationHistory);
-      
-      const res = await fetch("/api/chat", {
+      const systemMessage = developerMessage.trim() || "You are a helpful assistant.";
+      const conversationMessages = [
+        { role: "system", content: systemMessage },
+        ...messages.map(msg => ({ role: msg.role === "bot" ? "assistant" : "user", content: msg.content })),
+        { role: "user", content: currentMessage }
+      ];
+
+      const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          messages: messagesToSend,
-          model,
+          messages: conversationMessages,
+          model: model,
           api_key: apiKey,
+          use_rag: ragEnabled && hasDocuments  // Send RAG parameter
         }),
       });
-      
-      if (!res.body) throw new Error("No response body. The AI is being shy.");
-      
-      let botMsg = "";
-      const reader = res.body.getReader();
-      
-      setMessages(prev => [...prev, { role: "bot", content: "", timestamp: Date.now() }]);
-      
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error("Failed to read response");
+      }
+
+      let fullResponse = "";
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        
-        const chunk = new TextDecoder().decode(value);
-        botMsg += chunk;
-        
-        setMessages((prevMessages) => {
-          const newMessages = [...prevMessages];
-          const lastIndex = newMessages.length - 1;
-          if (newMessages[lastIndex] && newMessages[lastIndex].role === "bot") {
-            newMessages[lastIndex] = { role: "bot", content: botMsg, timestamp: newMessages[lastIndex].timestamp };
+
+        const chunk = decoder.decode(value, { stream: true });
+        fullResponse += chunk;
+
+        // Update the last message with the current response
+        setMessages(prev => {
+          const newMessages = [...prev];
+          if (newMessages.length > 0) {
+            newMessages[newMessages.length - 1] = {
+              ...newMessages[newMessages.length - 1],
+              content: fullResponse
+            };
           }
           return newMessages;
         });
       }
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : "Unknown error occurred";
+
+      // Scroll to bottom after response
+      setTimeout(() => scrollToBottom(), 100);
+
+    } catch (error) {
+      console.error("Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       setError(
         errorMessage ||
           "Something went wrong! Maybe the AI is on a coffee break? ☕️"
@@ -322,7 +462,7 @@ export default function Home() {
   // Add clear chat function
   const clearChat = () => {
     setMessages([
-      { role: "bot", content: "Hey, what's up?", timestamp: Date.now() },
+      { role: "bot", content: "Hey, what's up? I can now help you with your documents too! 📄", timestamp: Date.now() },
     ]);
     setUnreadCount(0);
     setError("");
@@ -407,6 +547,82 @@ export default function Home() {
             </select>
           </label>
 
+          {/* RAG Section */}
+          <div className={styles.ragSection}>
+            <label className={styles.label}>
+              📄 Document Knowledge
+            </label>
+            
+            {/* Document Status */}
+            <div className={styles.documentStatus}>
+              {hasDocuments ? (
+                <span className={styles.statusIndicator}>
+                  ✅ {documentCount} document chunks loaded
+                </span>
+              ) : (
+                <span className={styles.statusIndicator}>
+                  📄 No documents uploaded
+                </span>
+              )}
+            </div>
+
+            {/* File Upload Area */}
+            <div 
+              className={styles.fileUploadArea}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf"
+                onChange={handleFileInputChange}
+                style={{ display: 'none' }}
+              />
+              <div className={styles.uploadContent}>
+                {isUploadingFile ? (
+                  <div className={styles.uploadingIndicator}>
+                    <span className={styles.spinner}>⏳</span>
+                    <span>Processing PDF...</span>
+                  </div>
+                ) : (
+                  <>
+                    <span className={styles.uploadIcon}>📎</span>
+                    <span>Drop PDF here or click to browse</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* RAG Toggle */}
+            <label className={styles.toggleLabel}>
+              <input
+                type="checkbox"
+                checked={ragEnabled}
+                onChange={(e) => setRagEnabled(e.target.checked)}
+                disabled={!hasDocuments}
+                className={styles.toggleInput}
+              />
+              <span className={styles.toggleSlider}></span>
+              <span className={styles.toggleText}>
+                {ragEnabled ? "🧠 Document mode ON" : "💭 Chat mode only"}
+              </span>
+            </label>
+
+            {/* Clear Documents Button */}
+            {hasDocuments && (
+              <button
+                type="button"
+                className={styles.clearDocsButton}
+                onClick={clearDocuments}
+                title="Clear all documents"
+              >
+                🗑️ Clear Documents
+              </button>
+            )}
+          </div>
+
           <button
             type="button"
             className={styles.clearButton}
@@ -427,6 +643,11 @@ export default function Home() {
         </div>
         
         <FunnyError message={error} />
+        {uploadSuccess && (
+          <div className={styles.successMessage}>
+            {uploadSuccess}
+          </div>
+        )}
       </div>
       
       <div className={styles.rightPanel}>
@@ -459,7 +680,9 @@ export default function Home() {
               {loading && (
                 <div className={styles.messageWrapper}>
                   <div className={styles.botMessage} style={{ opacity: 0.7 }}>
-                    <span className={styles.typing}>AI is typing…</span>
+                    <span className={styles.typing}>
+                      {ragEnabled && hasDocuments ? "AI is searching documents..." : "AI is typing…"}
+                    </span>
                   </div>
                   <div className={styles.timestamp}>
                     now
@@ -486,6 +709,9 @@ export default function Home() {
           <div className={styles.userInputArea}>
             <label className={styles.label}>
               💬 Say Something...
+              {ragEnabled && hasDocuments && (
+                <span className={styles.ragIndicator}>🧠 Document mode active</span>
+              )}
             </label>
             <div className={styles.inputRow}>
               <div className={styles.textareaContainer}>
@@ -495,7 +721,7 @@ export default function Home() {
                   value={userMessage}
                   onChange={(e) => setUserMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type your message here..."
+                  placeholder={ragEnabled && hasDocuments ? "Ask about your documents..." : "Type your message here..."}
                   rows={2}
                   required
                 />

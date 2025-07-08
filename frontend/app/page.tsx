@@ -38,17 +38,6 @@ interface Message {
 // Theme types
 type Theme = 'dark-ice' | 'light-snow' | 'neon-ice';
 
-// System prompt presets
-const SYSTEM_PROMPTS = {
-  'default': '',
-  'coding-assistant': 'You are an expert programming assistant. Provide clear, well-commented code examples and explain complex concepts simply.',
-  'creative-writer': 'You are a creative writing assistant. Help with storytelling, character development, and writing techniques.',
-  'data-analyst': 'You are a data analysis expert. Help interpret data, suggest visualizations, and explain statistical concepts.',
-  'teacher': 'You are a patient, encouraging teacher. Break down complex topics into easy-to-understand steps.',
-  'business-advisor': 'You are a business consultant. Provide strategic advice, market insights, and practical business solutions.',
-  'researcher': 'You are a thorough researcher. Provide well-sourced information and multiple perspectives on topics.'
-};
-
 function MessageContent({ content, isBot, theme }: { content: string; isBot: boolean; theme: Theme }) {
   if (!isBot) {
     return <span>{content}</span>;
@@ -158,10 +147,9 @@ function FunnyError({ message }: { message: string }) {
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
-  const [developerMessage, setDeveloperMessage] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", content: "Hey, what's up? I can now help you with your documents too! 📄", timestamp: Date.now() },
+    { role: "bot", content: "Hey! I'm your document assistant. Upload some PDFs and I'll help you with questions about them! 📄", timestamp: Date.now() },
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -169,7 +157,6 @@ export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [theme, setTheme] = useState<Theme>('dark-ice');
-  const [selectedPrompt, setSelectedPrompt] = useState('default');
   
   // RAG-related state
   const [ragEnabled, setRagEnabled] = useState(false);
@@ -347,12 +334,6 @@ export default function Home() {
     }
   }, [userMessage]);
 
-  // Handle preset selection
-  const handlePresetChange = (preset: string) => {
-    setSelectedPrompt(preset);
-    setDeveloperMessage(SYSTEM_PROMPTS[preset as keyof typeof SYSTEM_PROMPTS]);
-  };
-
   const handleSend = async () => {
     if (!userMessage.trim() || loading) return;
 
@@ -385,24 +366,24 @@ export default function Home() {
     }
 
     try {
-      const systemMessage = developerMessage.trim() || "You are a helpful assistant.";
       const conversationMessages = [
-        { role: "system", content: systemMessage },
         ...messages.map(msg => ({ role: msg.role === "bot" ? "assistant" : "user", content: msg.content })),
         { role: "user", content: currentMessage }
       ];
+
+      const requestBody = {
+        messages: conversationMessages,
+        model: model,
+        api_key: apiKey,
+        use_rag: ragEnabled && hasDocuments
+      };
 
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          messages: conversationMessages,
-          model: model,
-          api_key: apiKey,
-          use_rag: ragEnabled && hasDocuments  // Send RAG parameter
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -470,7 +451,7 @@ export default function Home() {
   // Add clear chat function
   const clearChat = () => {
     setMessages([
-      { role: "bot", content: "Hey, what's up? I can now help you with your documents too! 📄", timestamp: Date.now() },
+      { role: "bot", content: "Hey! I'm your document assistant. Upload some PDFs and I'll help you with questions about them! 📄", timestamp: Date.now() },
     ]);
     setUnreadCount(0);
     setError("");
@@ -513,36 +494,6 @@ export default function Home() {
             </select>
           </label>
 
-          <label className={styles.label}>
-            🎭 Personality Preset
-            <select
-              className={styles.input}
-              value={selectedPrompt}
-              onChange={(e) => handlePresetChange(e.target.value)}
-            >
-              <option value="default">Custom</option>
-              <option value="coding-assistant">👨‍💻 Coding Assistant</option>
-              <option value="creative-writer">✍️ Creative Writer</option>
-              <option value="data-analyst">📊 Data Analyst</option>
-              <option value="teacher">🎓 Teacher</option>
-              <option value="business-advisor">💼 Business Advisor</option>
-              <option value="researcher">🔬 Researcher</option>
-            </select>
-          </label>
-
-          <label className={styles.label}>
-            🎭 Bot Personality
-            <input
-              className={styles.input}
-              value={developerMessage}
-              onChange={(e) => {
-                setDeveloperMessage(e.target.value);
-                setSelectedPrompt('default');
-              }}
-              placeholder="Set how your AI should behave..."
-            />
-          </label>
-          
           <label className={styles.label}>
             🤖 AI Brain
             <select

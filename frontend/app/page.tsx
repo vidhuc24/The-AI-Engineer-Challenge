@@ -159,7 +159,6 @@ export default function Home() {
   const [theme, setTheme] = useState<Theme>('dark-ice');
   
   // RAG-related state
-  const [ragEnabled, setRagEnabled] = useState(false);
   const [hasDocuments, setHasDocuments] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [documentCount, setDocumentCount] = useState(0);
@@ -375,7 +374,7 @@ export default function Home() {
         messages: conversationMessages,
         model: model,
         api_key: apiKey,
-        use_rag: ragEnabled && hasDocuments
+        use_rag: hasDocuments
       };
 
       const response = await fetch("/api/chat", {
@@ -506,21 +505,21 @@ export default function Home() {
             </select>
           </label>
 
-          {/* RAG Section */}
+          {/* Document Assistant Section */}
           <div className={styles.ragSection}>
             <label className={styles.label}>
-              📄 Document Knowledge
+              📄 Document Assistant
             </label>
             
             {/* Document Status */}
             <div className={styles.documentStatus}>
               {hasDocuments ? (
                 <span className={styles.statusIndicator}>
-                  ✅ {documentCount} document chunks loaded
+                  🧠 Document Assistant Mode - {documentCount} chunks ready
                 </span>
               ) : (
                 <span className={styles.statusIndicator}>
-                  📄 No documents uploaded
+                  📄 Upload documents to activate assistant
                 </span>
               )}
             </div>
@@ -553,21 +552,6 @@ export default function Home() {
                 )}
               </div>
             </div>
-
-            {/* RAG Toggle */}
-            <label className={styles.toggleLabel}>
-              <input
-                type="checkbox"
-                checked={ragEnabled}
-                onChange={(e) => setRagEnabled(e.target.checked)}
-                disabled={!hasDocuments}
-                className={styles.toggleInput}
-              />
-              <span className={styles.toggleSlider}></span>
-              <span className={styles.toggleText}>
-                {ragEnabled ? "🧠 Document mode ON" : "💭 Chat mode only"}
-              </span>
-            </label>
 
             {/* Clear Documents Button */}
             {hasDocuments && (
@@ -640,7 +624,7 @@ export default function Home() {
                 <div className={styles.messageWrapper}>
                   <div className={styles.botMessage} style={{ opacity: 0.7 }}>
                     <span className={styles.typing}>
-                      {ragEnabled && hasDocuments ? "AI is searching documents..." : "AI is typing…"}
+                      {hasDocuments ? "AI is searching documents..." : "AI is typing…"}
                     </span>
                   </div>
                   <div className={styles.timestamp}>
@@ -668,7 +652,7 @@ export default function Home() {
           <div className={styles.userInputArea}>
             <label className={styles.label}>
               💬 Say Something...
-              {ragEnabled && hasDocuments && (
+              {hasDocuments && (
                 <span className={styles.ragIndicator}>🧠 Document mode active</span>
               )}
             </label>
@@ -680,7 +664,7 @@ export default function Home() {
                   value={userMessage}
                   onChange={(e) => setUserMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={ragEnabled && hasDocuments ? "Ask about your documents..." : "Type your message here..."}
+                  placeholder={hasDocuments ? "Ask about your documents..." : "Type your message here..."}
                   rows={2}
                   required
                 />

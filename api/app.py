@@ -1,5 +1,5 @@
 # Import required FastAPI components for building the API
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 # Import Pydantic for data validation and settings management
@@ -106,53 +106,61 @@ If the context doesn't contain relevant information for the question, please say
 
 # New endpoint for document upload
 @app.post("/api/upload-document")
-async def upload_document(file: UploadFile = File(...), api_key: str = ""):
-    global has_documents, vector_db
-    
+async def upload_document(
+    file: UploadFile = File(...),
+    api_key: str = Form(...)
+):
+    """Upload a document to the vector database."""
     try:
-        # Check if API key is provided
+        # Validate inputs
+        if not file.filename.endswith('.pdf'):
+            raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+        
         if not api_key:
-            raise HTTPException(status_code=400, detail="OpenAI API key is required for document processing")
+            raise HTTPException(status_code=400, detail="API key is required")
         
-        # Check if file is PDF
-        if not file.filename.lower().endswith('.pdf'):
-            raise HTTPException(status_code=400, detail="Only PDF files are supported")
+        # Read the uploaded file
+        content = await file.read()
         
-        # Initialize vector database with API key
-        embedding_model = EmbeddingModel(api_key=api_key)
-        vector_db = VectorDatabase(embedding_model=embedding_model)
-        
-        # Save uploaded file temporarily
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
-            content = await file.read()
-            tmp_file.write(content)
-            tmp_file_path = tmp_file.name
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+            temp_file.write(content)
+            temp_file_path = temp_file.name
         
         try:
-            # Load and process the PDF
-            loader = PDFLoader(tmp_file_path)
-            documents = loader.load_documents()
+            # Load PDF
+            loader = PDFLoader()
+            documents = loader.load_documents([temp_file_path])
             
-            # Split the text into chunks
-            splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            chunks = splitter.split_texts(documents)
+            # Split text
+            text_splitter = CharacterTextSplitter()
+            split_docs = text_splitter.split_texts(documents)
             
-            # Add chunks to vector database
-            await vector_db.abuild_from_list(chunks)
-            has_documents = True
+            # Initialize vector database with API key
+            vector_db = VectorDatabase(
+                embedding_model=EmbeddingModel(api_key=api_key)
+            )
             
-            return {
-                "message": f"Successfully processed {file.filename}",
-                "chunks": len(chunks),
-                "status": "success"
-            }
+            # Add documents to vector database
+            vector_db.add_documents(split_docs)
+            
+            # Update global vector database
+            global_vector_db = vector_db
+            
+            uploaded_docs.append({
+                "filename": file.filename,
+                "timestamp": os.path.getmtime(temp_file_path)
+            })
+            
+            return {"message": f"Document {file.filename} uploaded successfully"}
             
         finally:
             # Clean up temporary file
-            os.unlink(tmp_file_path)
-    
+            os.unlink(temp_file_path)
+            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
+        print(f"Error uploading document: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error uploading document: {str(e)}")
 
 # New endpoint to check document status
 @app.get("/api/documents/status")

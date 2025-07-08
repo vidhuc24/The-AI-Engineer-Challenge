@@ -217,7 +217,7 @@ Please upload some PDF documents first, then I'll be able to answer questions ab
             yield "data: [DONE]\n\n"
 
         # Return a streaming response to the client with proper SSE media type
-        return StreamingResponse(generate(), media_type="text/plain")
+        return StreamingResponse(generate(), media_type="text/event-stream")
     
     except Exception as e:
         # Handle any errors that occur during processing

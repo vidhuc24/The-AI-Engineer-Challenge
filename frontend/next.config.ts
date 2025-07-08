@@ -7,6 +7,22 @@ const nextConfig: NextConfig = {
         source: '/api/chat',
         destination: 'http://localhost:8000/api/chat',
       },
+      {
+        source: '/api/upload-document',
+        destination: 'http://localhost:8000/api/upload-document',
+      },
+      {
+        source: '/api/documents/status',
+        destination: 'http://localhost:8000/api/documents/status',
+      },
+      {
+        source: '/api/documents/clear',
+        destination: 'http://localhost:8000/api/documents/clear',
+      },
+      {
+        source: '/api/health',
+        destination: 'http://localhost:8000/api/health',
+      },
     ];
   },
 };

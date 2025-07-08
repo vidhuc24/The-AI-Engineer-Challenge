@@ -170,8 +170,9 @@ a.secondary {
 .chatPage {
   display: grid;
   grid-template-columns: 320px 1fr;
-  grid-template-rows: auto 1fr;
-  min-height: 100vh;
+  grid-template-rows: 1fr;
+  height: 100vh;
+  overflow: hidden;
   padding: 20px;
   font-family: 'Montserrat', Arial, Helvetica, sans-serif;
   gap: 20px;
@@ -340,18 +341,21 @@ a.secondary {
 
 .leftPanel {
   grid-column: 1;
-  grid-row: 1 / -1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 .rightPanel {
   grid-column: 2;
-  grid-row: 1 / -1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow: hidden;
 }
 
 .inputForm {
@@ -518,14 +522,13 @@ a.secondary {
   flex-direction: column;
   height: 100%;
   gap: 12px;
-  max-height: calc(100vh - 40px);
+  overflow: hidden;
 }
 
 .chatContainerWrapper {
   position: relative;
   flex: 1;
-  min-height: 600px;
-  max-height: 750px;
+  overflow: hidden;
 }
 
 .chatContainer {
@@ -1232,15 +1235,15 @@ a.secondary {
 }
 
 .fileUploadArea {
-  margin: 12px 0;
-  padding: 24px;
+  margin: 8px 0;
+  padding: 16px;
   border: 2px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
+  border-radius: 8px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.02);
-  min-height: 80px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1249,7 +1252,7 @@ a.secondary {
 .fileUploadArea:hover {
   border-color: rgba(255, 255, 255, 0.5);
   background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .fileUploadArea:active {
@@ -1258,17 +1261,15 @@ a.secondary {
 
 .uploadContent {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 8px;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9em;
+  font-size: 0.85em;
   font-weight: 500;
 }
 
 .uploadIcon {
-  font-size: 1.5em;
-  margin-bottom: 4px;
+  font-size: 1.2em;
 }
 
 .uploadingIndicator {
@@ -1454,28 +1455,32 @@ a.secondary {
 }
 
 .removeDocButton {
-  background: rgba(220, 38, 38, 0.8);
-  color: white;
+  background: none;
+  color: rgba(255, 255, 255, 0.4);
   border: none;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 0.75rem;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s;
   font-family: 'Montserrat', Arial, Helvetica, sans-serif;
-  opacity: 0.7;
-  font-weight: 500;
+  font-weight: 400;
   margin-left: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .removeDocButton:hover {
-  background: rgba(220, 38, 38, 1);
-  opacity: 1;
-  transform: scale(1.05);
+  background: rgba(220, 38, 38, 0.8);
+  color: white;
+  transform: scale(1.1);
 }
 
 .removeDocButton:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
 /* Light Snow Theme Overrides */
@@ -1578,6 +1583,15 @@ a.secondary {
   color: #374151;
 }
 
+.theme-light-snow .removeDocButton {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.theme-light-snow .removeDocButton:hover {
+  background: rgba(220, 38, 38, 0.8);
+  color: white;
+}
+
 /* Neon Ice Theme Overrides */
 .theme-neon-ice .ragSection {
   background: rgba(22, 133, 248, 0.02);
@@ -1601,7 +1615,7 @@ a.secondary {
 .theme-neon-ice .fileUploadArea:hover {
   border-color: rgba(22, 133, 248, 0.6);
   background: rgba(22, 133, 248, 0.05);
-  box-shadow: 0 0 20px rgba(22, 133, 248, 0.2);
+  box-shadow: 0 0 15px rgba(22, 133, 248, 0.15);
 }
 
 .theme-neon-ice .uploadContent {
@@ -1660,37 +1674,13 @@ a.secondary {
   color: #E8F4FD;
 }
 
-/* Responsive Design for RAG Components */
-@media (max-width: 768px) {
-  .ragSection {
-    margin: 16px 0;
-    padding: 12px;
-  }
-  
-  .fileUploadArea {
-    padding: 16px;
-    min-height: 60px;
-  }
-  
-  .toggleLabel {
-    padding: 8px;
-  }
-  
-  .toggleSlider {
-    width: 40px;
-    height: 22px;
-  }
-  
-  .toggleSlider::before {
-    width: 16px;
-    height: 16px;
-    top: 3px;
-    left: 3px;
-  }
-  
-  .toggleInput:checked + .toggleSlider::before {
-    transform: translateX(18px);
-  }
+.theme-neon-ice .removeDocButton {
+  color: rgba(22, 133, 248, 0.4);
+}
+
+.theme-neon-ice .removeDocButton:hover {
+  background: rgba(220, 38, 38, 0.8);
+  color: white;
 }
 
 /* API Key Screen Styles */
@@ -2217,5 +2207,75 @@ a.secondary {
   .changeApiKeyButton {
     padding: 6px 10px;
     font-size: 11px;
+  }
+  
+  /* Chat Page Mobile */
+  .chatPage {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    overflow: hidden;
+    padding: 16px;
+  }
+  
+  .leftPanel {
+    grid-column: 1;
+    grid-row: 1;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  
+  .rightPanel {
+    grid-column: 1;
+    grid-row: 2;
+    overflow: hidden;
+  }
+  
+  .logo {
+    width: 138px;
+    height: 138px;
+  }
+  
+  .logoTitle {
+    font-size: 1.5rem;
+  }
+  
+  /* RAG Components Mobile */
+  .ragSection {
+    margin: 16px 0;
+    padding: 12px;
+  }
+  
+  .fileUploadArea {
+    padding: 12px;
+    min-height: 40px;
+  }
+  
+  .uploadContent {
+    font-size: 0.8em;
+  }
+  
+  .uploadIcon {
+    font-size: 1.1em;
+  }
+  
+  .toggleLabel {
+    padding: 8px;
+  }
+  
+  .toggleSlider {
+    width: 40px;
+    height: 22px;
+  }
+  
+  .toggleSlider::before {
+    width: 16px;
+    height: 16px;
+    top: 3px;
+    left: 3px;
+  }
+  
+  .toggleInput:checked + .toggleSlider::before {
+    transform: translateX(18px);
   }
 }

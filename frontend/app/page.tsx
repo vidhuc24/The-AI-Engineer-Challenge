@@ -688,7 +688,7 @@ function ChatInterface({
                       onClick={() => removeDocument(doc.filename)}
                       title={`Remove ${doc.filename}`}
                     >
-                      ❌
+                      ×
                     </button>
                   </div>
                 ))}
@@ -717,15 +717,6 @@ function ChatInterface({
             🗑️ Clear Chat
           </button>
         </form>
-        
-        <div className={styles.logoContainer}>
-          <img 
-            src="/my_logo.png" 
-            alt="ChillGPT Logo" 
-            className={styles.logo}
-          />
-          <h1 className={styles.logoTitle}>ChillGPT</h1>
-        </div>
         
         <FunnyError message={error} />
         {uploadSuccess && (
@@ -794,9 +785,6 @@ function ChatInterface({
           <div className={styles.userInputArea}>
             <label className={styles.label}>
               💬 Say Something...
-              {hasDocuments && (
-                <span className={styles.ragIndicator}>🧠 Document mode active</span>
-              )}
             </label>
             <div className={styles.inputRow}>
               <div className={styles.textareaContainer}>

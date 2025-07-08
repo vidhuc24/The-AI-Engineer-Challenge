@@ -1,5 +1,5 @@
 # Import required FastAPI components for building the API
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 # Import Pydantic for data validation and settings management
@@ -7,10 +7,17 @@ from pydantic import BaseModel
 # Import OpenAI client for interacting with OpenAI's API
 from openai import OpenAI
 import os
+import tempfile
+import asyncio
 from typing import Optional, List, Dict, Any
 
+# Import RAG utilities
+from aimakerspace.vectordatabase import VectorDatabase
+from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
+from aimakerspace.openai_utils.embedding import EmbeddingModel
+
 # Initialize FastAPI application with a title
-app = FastAPI(title="OpenAI Chat API")
+app = FastAPI(title="ChillGPT with RAG")
 
 # Configure CORS (Cross-Origin Resource Sharing) middleware
 # This allows the API to be accessed from different domains/origins
@@ -22,12 +29,17 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers in requests
 )
 
+# Global vector database instance
+vector_db = VectorDatabase()
+has_documents = False
+
 # Define the data model for chat requests using Pydantic
 # This ensures incoming request data is properly validated
 class ChatRequest(BaseModel):
     messages: List[Dict[str, str]]  # Full conversation history
     model: Optional[str] = "gpt-4.1-mini"  # Optional model selection with default
     api_key: str          # OpenAI API key for authentication
+    use_rag: Optional[bool] = False  # Whether to use RAG enhancement
 
 # Define the main chat endpoint that handles POST requests
 @app.post("/api/chat")
@@ -36,12 +48,40 @@ async def chat(request: ChatRequest):
         # Initialize OpenAI client with the provided API key
         client = OpenAI(api_key=request.api_key)
         
+        # Get the user's latest message
+        user_message = request.messages[-1]["content"] if request.messages else ""
+        
+        # If RAG is requested and we have documents, enhance the query
+        if request.use_rag and has_documents and user_message:
+            # Search for relevant context
+            relevant_contexts = vector_db.search_by_text(user_message, k=3, return_as_text=True)
+            
+            if relevant_contexts:
+                # Build context string
+                context_str = "\n\n".join([f"Context {i+1}: {ctx}" for i, ctx in enumerate(relevant_contexts)])
+                
+                # Enhance the user message with context
+                enhanced_message = f"""Based on the following context from uploaded documents:
+
+{context_str}
+
+Please answer this question: {user_message}
+
+If the context doesn't contain relevant information for the question, please say so and answer based on your general knowledge."""
+                
+                # Replace the last message with the enhanced version
+                enhanced_messages = request.messages[:-1] + [{"role": "user", "content": enhanced_message}]
+            else:
+                enhanced_messages = request.messages
+        else:
+            enhanced_messages = request.messages
+        
         # Create an async generator function for streaming responses
         async def generate():
             # Create a streaming chat completion request with full conversation history
             stream = client.chat.completions.create(
                 model=request.model,
-                messages=request.messages,  # Send the entire conversation history
+                messages=enhanced_messages,  # Send the enhanced conversation history
                 stream=True  # Enable streaming response
             )
             
@@ -57,10 +97,68 @@ async def chat(request: ChatRequest):
         # Handle any errors that occur during processing
         raise HTTPException(status_code=500, detail=str(e))
 
+# New endpoint for document upload
+@app.post("/api/upload-document")
+async def upload_document(file: UploadFile = File(...)):
+    global has_documents
+    
+    try:
+        # Check if file is PDF
+        if not file.filename.lower().endswith('.pdf'):
+            raise HTTPException(status_code=400, detail="Only PDF files are supported")
+        
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+            content = await file.read()
+            tmp_file.write(content)
+            tmp_file_path = tmp_file.name
+        
+        try:
+            # Load and process the PDF
+            loader = PDFLoader(tmp_file_path)
+            documents = loader.load_documents()
+            
+            # Split the text into chunks
+            splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            chunks = splitter.split_texts(documents)
+            
+            # Add chunks to vector database
+            await vector_db.abuild_from_list(chunks)
+            has_documents = True
+            
+            return {
+                "message": f"Successfully processed {file.filename}",
+                "chunks": len(chunks),
+                "status": "success"
+            }
+            
+        finally:
+            # Clean up temporary file
+            os.unlink(tmp_file_path)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
+
+# New endpoint to check document status
+@app.get("/api/documents/status")
+async def get_document_status():
+    return {
+        "has_documents": has_documents,
+        "document_count": len(vector_db.vectors) if has_documents else 0
+    }
+
+# New endpoint to clear documents
+@app.post("/api/documents/clear")
+async def clear_documents():
+    global has_documents, vector_db
+    vector_db = VectorDatabase()
+    has_documents = False
+    return {"message": "Documents cleared successfully"}
+
 # Define a health check endpoint to verify API status
 @app.get("/api/health")
 async def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "rag_enabled": True}
 
 # Entry point for running the application directly
 if __name__ == "__main__":

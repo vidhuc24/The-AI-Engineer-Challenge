@@ -594,6 +594,13 @@ function ChatInterface({
           </button>
         </div>
 
+        <FunnyError message={error} />
+        {uploadSuccess && (
+          <div className={styles.successMessage}>
+            {uploadSuccess}
+          </div>
+        )}
+
         <form
           className={styles.inputForm}
           onSubmit={(e) => {
@@ -717,13 +724,6 @@ function ChatInterface({
             🗑️ Clear Chat
           </button>
         </form>
-        
-        <FunnyError message={error} />
-        {uploadSuccess && (
-          <div className={styles.successMessage}>
-            {uploadSuccess}
-          </div>
-        )}
       </div>
       
       <div className={styles.rightPanel}>

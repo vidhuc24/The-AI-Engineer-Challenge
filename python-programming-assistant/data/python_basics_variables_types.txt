@@ -1,0 +1,55 @@
+# Python Basics - Variables and Data Types
+
+Python is a dynamically-typed programming language, which means you don't need to declare variable types explicitly.
+
+## Variables
+Variables in Python are created when you assign a value to them. Variable names should be descriptive and follow these rules:
+- Start with a letter or underscore
+- Can contain letters, numbers, and underscores
+- Are case-sensitive
+- Cannot be Python keywords
+
+Examples:
+```python
+name = "Alice"
+age = 25
+height = 5.6
+is_student = True
+```
+
+## Data Types
+
+### Numbers
+- **Integers (int)**: Whole numbers like 42, -17, 0
+- **Floats (float)**: Decimal numbers like 3.14, -2.5, 1.0
+- **Complex**: Numbers with real and imaginary parts like 2+3j
+
+### Strings (str)
+Text data enclosed in quotes:
+```python
+single_quoted = 'Hello'
+double_quoted = "World"
+multiline = '''This is a
+multiline string'''
+```
+
+### Booleans (bool)
+True or False values:
+```python
+is_valid = True
+is_empty = False
+```
+
+### Collections
+- **Lists**: Ordered, mutable collections `[1, 2, 3]`
+- **Tuples**: Ordered, immutable collections `(1, 2, 3)`
+- **Dictionaries**: Key-value pairs `{"name": "Alice", "age": 25}`
+- **Sets**: Unordered collections of unique items `{1, 2, 3}`
+
+## Type Checking
+Use the `type()` function to check variable types:
+```python
+print(type(42))        # <class 'int'>
+print(type(3.14))      # <class 'float'>
+print(type("hello"))   # <class 'str'>
+```

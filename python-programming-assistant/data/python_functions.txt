@@ -1,0 +1,81 @@
+# Python Functions
+
+Functions are reusable blocks of code that perform specific tasks. They help organize code and avoid repetition.
+
+## Defining Functions
+Use the `def` keyword to define a function:
+```python
+def greet(name):
+    return f"Hello, {name}!"
+
+# Call the function
+message = greet("Alice")
+print(message)  # Output: Hello, Alice!
+```
+
+## Function Components
+1. **Function name**: Should be descriptive (greet)
+2. **Parameters**: Input values in parentheses (name)
+3. **Body**: Indented code block
+4. **Return statement**: Optional, returns a value
+
+## Parameters and Arguments
+
+### Default Parameters
+```python
+def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+
+greet("Alice")              # Hello, Alice!
+greet("Bob", "Hi")          # Hi, Bob!
+```
+
+### Keyword Arguments
+```python
+def create_user(name, age, city="Unknown"):
+    return f"{name}, {age} years old from {city}"
+
+# Using keyword arguments
+user = create_user(name="Alice", age=25, city="New York")
+```
+
+### Variable Arguments
+```python
+def sum_numbers(*args):
+    return sum(args)
+
+result = sum_numbers(1, 2, 3, 4, 5)  # Returns 15
+```
+
+### Keyword Variable Arguments
+```python
+def print_info(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+
+print_info(name="Alice", age=25, city="New York")
+```
+
+## Lambda Functions
+Short, anonymous functions:
+```python
+square = lambda x: x ** 2
+print(square(5))  # Output: 25
+
+# Used with map, filter, etc.
+numbers = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x ** 2, numbers))
+```
+
+## Scope and Variables
+- **Local scope**: Variables defined inside functions
+- **Global scope**: Variables defined outside functions
+- **Global keyword**: Access global variables inside functions
+```python
+global_var = "I'm global"
+
+def my_function():
+    local_var = "I'm local"
+    global global_var
+    global_var = "Modified global"
+```

@@ -93,7 +93,7 @@ async def initialize_rag_system(api_key: str):
         all_chunks = []
         
         for i, doc in enumerate(documents):
-            chunks = text_splitter.split_text(doc)
+            chunks = text_splitter.split(doc)
             # Add metadata to chunks
             for chunk in chunks:
                 chunk_with_metadata = f"[From: {doc_files[i]}]\n{chunk}"
